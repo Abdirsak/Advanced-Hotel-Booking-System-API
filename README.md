@@ -2,7 +2,7 @@
 
 Here’s a breakdown of the file structure in our project:
 
-- **inv-api** - This is likely the root directory of the project. It contains all of the other files and folders in the project.
+- **inv-ms-api** - This is likely the root directory of the project. It contains all of the other files and folders in the project.
 
 - **public** - This folder likely contains the static files that will be served by the web server. This may include things like uploaded files, default files etc.
 - **src** - This folder contains the source code for our express api.
