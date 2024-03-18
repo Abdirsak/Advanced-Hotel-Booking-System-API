@@ -7,6 +7,7 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 
 // routes
+import branchRouter from "./branches/route.js";
 
 dotenv.config();
 
@@ -35,6 +36,8 @@ app.get("/", (req, res) => {
 });
 
 // * REGISTER ROTES
+app.use("/api/branches", branchRouter);
+
 app.use("/*", (req, res) => {
   res.status(404).json({ status: false, message: "Incorrect URL Destination" });
 });
