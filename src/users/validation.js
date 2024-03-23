@@ -1,5 +1,5 @@
 import { body } from "express-validator";
-import mongoose from "mongoose";
+
 
 export const validate = [
 
@@ -18,7 +18,7 @@ export const validate = [
     // full name validation
   body("fullName").notEmpty().withMessage("full name is required")
   .isLength({ min: 3 })
-  .withMessage("Full Name must be at least 3 characters"),,
+  .withMessage("Full Name must be at least 3 characters"),
 
   // user role validation
   body("role")
@@ -41,5 +41,6 @@ export const validate = [
     .withMessage("Created User or createdBy is required"),
 
   // Description validation
-  body("description").optional(),
+  body("description").optional()
+  
 ];
