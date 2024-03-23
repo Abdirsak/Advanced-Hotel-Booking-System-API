@@ -1,13 +1,9 @@
 import mongoose from "mongoose";
+import bcrypt  from "bcryptjs";
 const Schema = mongoose.Schema;
-
 // Define the User schema
 const UserSchema = new Schema(
   {
-    userId: {
-      type: String,
-      required: true,
-    },
     username: {
       type: String,
       required: true,
@@ -57,7 +53,18 @@ const UserSchema = new Schema(
 );
 
 
-
+// Hash password before saving
+UserSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) return next();
+  
+    this.password = await bcrypt.hash(this.password, 10);
+  });
+  
+  // Check if password is correct
+  UserSchema.methods.isCorrectPassword = async function(password) {
+    return bcrypt.compare(password, this.password);
+  };
+  
 // Export the User model
 const User = mongoose.model("User", UserSchema);
 
