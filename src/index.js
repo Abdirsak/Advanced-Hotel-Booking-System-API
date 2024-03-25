@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 // routes
 import branchRouter from "./branches/route.js";
 import userRouter from "./users/route.js";
+import employeeRouter from "./employees/route.js";
 
 dotenv.config();
 
@@ -39,19 +40,22 @@ app.get("/", (req, res) => {
 // * REGISTER ROTES
 app.use("/api/branches", branchRouter);
 app.use("/api/users", userRouter);
+app.use("/api/employee", employeeRouter);
 
 app.use("/*", (req, res) => {
   res.status(404).json({ status: false, message: "Incorrect URL Destination" });
 });
 
 // *MONGO SETUP
-mongoose.connect(CONNECTION_URL,{ useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
-  console.log("connection success");
-})
-.catch((e) => {
-  console.error("Error is: " + e.message);
-  process.exit(1);
-});;
+mongoose
+  .connect(CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log("connection success");
+  })
+  .catch((e) => {
+    console.error("Error is: " + e.message);
+    process.exit(1);
+  });
 
 mongoose.connection.once("end", () => {
   console.log("Mongodb connect");
