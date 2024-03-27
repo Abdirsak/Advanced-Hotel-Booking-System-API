@@ -5,12 +5,12 @@ import {
   getEmployees,
   updateEmployee,
 } from "./controller.js";
-import { validate } from "./validate.js";
+import { validateEmployee } from "./validate.js";
 
 const router = express.Router();
 
 router.get("/", getEmployees);
-router.post("/", validate, createEmployee);
+router.post("/", validateEmployee, createEmployee);
 router.patch("/:id", updateEmployee);
 router.delete("/:id", deleteEmployee);
 

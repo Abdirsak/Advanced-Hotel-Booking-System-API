@@ -1,84 +1,84 @@
 import { validationResult } from "express-validator";
-import Employee from "./model.js";
+import Product from './model.js'
 import { isValidObjectId } from "mongoose";
 
-export const getEmployees = async (req, res) => {
+export const getProducts = async (req, res) => {
   try {
-    const employees = await Employee.find({});
-    res.send({ status: true, data: employees });
+    const product = await Product.find({});
+    res.send({ status: true, data: product });
   } catch (err) {
     res.status(500).json({ status: false, message: err.message });
   }
 };
 
-export const createEmployee = async (req, res) => {
+export const createProduct = async (req, res) => {
   try {
     const { errors } = validationResult(req);
     if (errors.length) throw new Error(errors[0]?.msg);
 
-    const employee = await Employee.create(req.body);
+    const product = await Product.create(req.body);
 
     res.status(201).send({
       status: true,
-      message: "employee created successfully",
-      data: employee,
+      message: "product created successfully",
+      data: product,
     });
   } catch (err) {
     res.status(400).json({ status: false, message: err.message });
   }
 };
 
-export const updateEmployee = async (req, res) => {
+export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidObjectId(id))
       return res
         .status(400)
-        .json({ status: false, message: "Invalid employee id" });
+        .json({ status: false, message: "Invalid product id" });
 
-    const updateEmployee = await Employee.findOneAndUpdate(
+    const updateProduct = await Product.findOneAndUpdate(
       { _id: id },
       req.body,
       {
         new: true,
       }
     );
-    if (!updateEmployee)
+    if (!updateProduct)
       return res
         .status(400)
         .json({ status: false, message: "Invalid action, Nothing to update" });
 
     res.status(201).send({
       status: true,
-      message: "employee updated successfully",
-      data: updateEmployee,
+      message: "Product updated successfully",
+      data: updateProduct,
     });
   } catch (err) {
     res.status(500).json({ status: false, message: err.message });
   }
 };
 
-export const deleteEmployee = async (req, res) => {
+export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidObjectId(id))
       return res
         .status(400)
-        .json({ status: false, message: "Invalid employee id" });
+        .json({ status: false, message: "Invalid Product id" });
 
-    const deletedEmployee = await Employee.findOneAndDelete(
+    const deleteProduct = await Product.findOneAndDelete(
       { _id: id },
       { new: true }
     );
-    if (!deletedEmployee)
+    if (!deleteProduct)
       return res
         .status(400)
         .json({ status: false, message: "Invalid action, Nothing to delete" });
 
     res.send({
       status: true,
-      message: "employee deleted successfully",
-      data: deletedEmployee,
+      message: "Product deleted successfully",
+      data: deleteProduct,
     });
   } catch (err) {
     res.status(500).json({ status: false, message: err.message });
