@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import branchRouter from "./branches/route.js";
 import userRouter from "./users/route.js";
 import employeeRouter from "./employees/route.js";
+import customerRouter from "./customer/route.js"
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.get("/", (req, res) => {
 app.use("/api/branches", branchRouter);
 app.use("/api/users", userRouter);
 app.use("/api/employee", employeeRouter);
+app.use("/api/customer", customerRouter)
 
 app.use("/*", (req, res) => {
   res.status(404).json({ status: false, message: "Incorrect URL Destination" });
