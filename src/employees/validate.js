@@ -2,7 +2,7 @@ import { body } from "express-validator";
 import mongoose from "mongoose";
 
 // Import the Employee model
-import Employee from "./EmployeeModel"; // Assuming this is the path to your Employee model
+// import Employee from "./EmployeeModel"; // Assuming this is the path to your Employee model
 
 // Validation middleware
 export const validateEmployee = [

@@ -10,7 +10,7 @@ import cookieParser from "cookie-parser";
 import branchRouter from "./branches/route.js";
 import userRouter from "./users/route.js";
 import employeeRouter from "./employees/route.js";
-import customerRouter from "./customer/route.js"
+import customerRouter from "./customer/route.js";
 
 dotenv.config();
 
