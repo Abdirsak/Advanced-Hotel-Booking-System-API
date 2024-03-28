@@ -18,7 +18,7 @@ export const createCustomer = async (req, res) => {
       const { error } = validationResult(req);
       if (error.length) throw new Error(error[0]?.msg);
 
-      const customer = await Customer.create(res.body);
+      const customer = await Customer.create(req.body);
 
       res.status(201).send({
          status: true,
