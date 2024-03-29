@@ -1,8 +1,6 @@
 import { body } from "express-validator";
 import mongoose from "mongoose";
-
-// Import the Employee model
-// import Employee from "./EmployeeModel"; // Assuming this is the path to your Employee model
+import Employee from "./model.js";
 
 // Validation middleware
 export const validateEmployee = [
@@ -28,7 +26,18 @@ export const validateEmployee = [
     .withMessage("Invalid Gender"),
 
   // Contact validation
-  body("contact").notEmpty().withMessage("Contact is required"),
+  body("contact")
+    .notEmpty()
+    .withMessage("Contact is required")
+    .custom(async (value, { req }) => {
+      // Check if the contact already exists in the database
+      const exists = await Employee.findOne({ contact: value });
+      if (exists) {
+        throw new Error("Contact must be unique");
+      }
+      // Return true if the contact is unique
+      return true;
+    }),
 
   // Address validation
   body("address").notEmpty().withMessage("Address is required"),
