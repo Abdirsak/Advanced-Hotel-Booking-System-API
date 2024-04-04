@@ -42,9 +42,14 @@ app.get("/", (req, res) => {
 // * REGISTER ROTES
 app.use("/api/branches", branchRouter);
 app.use("/api/users", userRouter);
+<<<<<<< HEAD
 app.use("/api/employee", employeeRouter);
 app.use("/api/customer", customerRouter)
 app.use("/api/supplier", supplierRouter)
+=======
+app.use("/api/employees", employeeRouter);
+app.use("/api/customers", customerRouter);
+>>>>>>> 97c56f19b2919f470c8415dd7f58efbdb5fde653
 
 app.use("/*", (req, res) => {
   res.status(404).json({ status: false, message: "Incorrect URL Destination" });

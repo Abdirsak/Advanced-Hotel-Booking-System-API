@@ -48,6 +48,7 @@ const EmployeeSchema = new Schema(
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      default: null,
     },
     description: {
       type: String,

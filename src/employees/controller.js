@@ -10,6 +10,20 @@ export const getEmployees = async (req, res) => {
     res.status(500).json({ status: false, message: err.message });
   }
 };
+export const getSingleEmployee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!isValidObjectId(id))
+      return res
+        .status(400)
+        .json({ status: false, message: "Invalid employee id" });
+
+    const employee = await Employee.findById(id);
+    res.send({ status: true, data: employee });
+  } catch (err) {
+    res.status(500).json({ status: false, message: err.message });
+  }
+};
 
 export const createEmployee = async (req, res) => {
   try {
