@@ -11,8 +11,8 @@ import branchRouter from "./branches/route.js";
 import userRouter from "./users/route.js";
 import employeeRouter from "./employees/route.js";
 import customerRouter from "./customer/route.js";
-import customerRouter from "./customer/route.js";
-import purchasesRouter from "./purchases/route.js";
+import purchasesRoutes from "./purchases/route.js";
+import supplierRoutes from "./supplier/route.js"
 
 dotenv.config();
 
@@ -43,14 +43,10 @@ app.get("/", (req, res) => {
 // * REGISTER ROTES
 app.use("/api/branches", branchRouter);
 app.use("/api/users", userRouter);
-
-app.use("/api/employee", employeeRouter);
-app.use("/api/customer", customerRouter)
-app.use("/api/supplier", supplierRouter)
-
 app.use("/api/employees", employeeRouter);
 app.use("/api/customers", customerRouter);
-app.use("/api/purchases", purchasesRouter);
+app.use("/api/purchases", purchasesRoutes);
+app.use("/api/supplier", supplierRoutes);
 
 app.use("/*", (req, res) => {
   res.status(404).json({ status: false, message: "Incorrect URL Destination" });

@@ -5,9 +5,8 @@ export const validate = [
   // supplier ID validation
   body("supplierId")
     .notEmpty()
-    .withMessage("Supplier ID is required")
-    .isMongoObject()
-    .withMessage("Invalid supplier Id"),
+    .withMessage("Supplier ID is required"),
+    
 
   // Expected Date validation
   body("expectedDate").notEmpty().withMessage("Expected Date is required"),

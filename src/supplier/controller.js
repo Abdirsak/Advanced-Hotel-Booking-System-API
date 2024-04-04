@@ -1,5 +1,5 @@
 import { validationResult } from "express-validator";
-import Supplier from "./model";
+import Supplier from "./model.js";
 import { isValidObjectId } from "mongoose";
 
 
