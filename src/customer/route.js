@@ -1,6 +1,11 @@
-import express from 'express'
-import { createCustomer, deleteCustomer, getCustomer, updateCustomer } from './controller.js';
-import { validate } from './validate.js';
+import express from "express";
+import {
+  createCustomer,
+  deleteCustomer,
+  getCustomer,
+  updateCustomer,
+} from "./controller.js";
+import { validate } from "./validate.js";
 
 const router = express.Router();
 
