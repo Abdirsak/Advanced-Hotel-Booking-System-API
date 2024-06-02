@@ -1,15 +1,10 @@
 import { validationResult } from "express-validator";
 import Employee from "./model.js";
 import { isValidObjectId } from "mongoose";
+import { getAll } from "../utils/query.js";
 
-export const getEmployees = async (req, res) => {
-  try {
-    const employees = await Employee.find({});
-    res.send({ status: true, data: employees });
-  } catch (err) {
-    res.status(500).json({ status: false, message: err.message });
-  }
-};
+export const getEmployees = getAll(Employee);
+
 export const getSingleEmployee = async (req, res) => {
   try {
     const { id } = req.params;

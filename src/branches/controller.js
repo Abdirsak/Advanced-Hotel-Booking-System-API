@@ -1,15 +1,9 @@
 import { validationResult } from "express-validator";
 import Branch from "./model.js";
 import { isValidObjectId } from "mongoose";
+import { getAll } from "../utils/query.js";
 
-export const getBranches = async (req, res) => {
-  try {
-    const branches = await Branch.find({});
-    res.send({ status: true, data: branches });
-  } catch (err) {
-    res.status(500).json({ status: false, message: err.message });
-  }
-};
+export const getBranches = getAll(Branch);
 
 export const createBranch = async (req, res) => {
   try {

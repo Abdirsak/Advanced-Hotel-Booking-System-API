@@ -1,15 +1,9 @@
 import { validationResult } from "express-validator";
-import Product from './model.js'
+import Product from "./model.js";
 import { isValidObjectId } from "mongoose";
+import { getAll } from "../utils/query.js";
 
-export const getProducts = async (req, res) => {
-  try {
-    const product = await Product.find({});
-    res.send({ status: true, data: product });
-  } catch (err) {
-    res.status(500).json({ status: false, message: err.message });
-  }
-};
+export const getProducts = getAll(Product);
 
 export const createProduct = async (req, res) => {
   try {
