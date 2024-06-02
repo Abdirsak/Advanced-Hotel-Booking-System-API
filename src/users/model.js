@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import MongoosePaginate from "mongoose-paginate-v2";
+
 const Schema = mongoose.Schema;
 // Define the User schema
 const UserSchema = new Schema(
@@ -65,6 +67,8 @@ UserSchema.pre("save", async function (next) {
 UserSchema.methods.isCorrectPassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
+
+UserSchema.plugin(MongoosePaginate);
 
 // Export the User model
 const User = mongoose.model("User", UserSchema);

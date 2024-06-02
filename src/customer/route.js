@@ -2,14 +2,14 @@ import express from "express";
 import {
   createCustomer,
   deleteCustomer,
-  getCustomer,
+  getCustomers,
   updateCustomer,
 } from "./controller.js";
 import { validate } from "./validate.js";
 
 const router = express.Router();
 
-router.get("/", getCustomer);
+router.get("/", getCustomers);
 router.post("/", validate, createCustomer);
 router.patch("/:id", updateCustomer);
 router.delete("/:id", deleteCustomer);

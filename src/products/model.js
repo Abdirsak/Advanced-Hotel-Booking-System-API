@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import MongoosePaginate from "mongoose-paginate-v2";
+
 const Schema = mongoose.Schema;
 
 // Define the Product schema
@@ -38,9 +40,9 @@ const ProductSchema = new Schema(
       required: true,
       default: "No picture",
     },
-    suplier: {
+    supplier: {
       type: Schema.Types.ObjectId,
-      ref: "Suplier",
+      ref: "Supplier",
     },
     createdBy: {
       type: Schema.Types.ObjectId,
@@ -52,6 +54,8 @@ const ProductSchema = new Schema(
     versionKey: false,
   }
 );
+
+ProductSchema.plugin(MongoosePaginate);
 
 // Export the Product model
 const Product = mongoose.model("Product", ProductSchema);

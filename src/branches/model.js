@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
+import MongoosePaginate from "mongoose-paginate-v2";
 
 // Define the Branch schema
 const BranchSchema = new Schema(
@@ -40,8 +41,7 @@ const BranchSchema = new Schema(
   }
 );
 
-// BranchSchema.plugin(mongoosePaginate);
-// BranchSchema.plugin(mongooseAggregate);
+BranchSchema.plugin(MongoosePaginate);
 
 // Export the Branch model
 const Branch = mongoose.model("Branch", BranchSchema);

@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
+import MongoosePaginate from "mongoose-paginate-v2";
+
 // Define the Employee schema
 const EmployeeSchema = new Schema(
   {
@@ -59,6 +61,8 @@ const EmployeeSchema = new Schema(
     versionKey: false,
   }
 );
+
+EmployeeSchema.plugin(MongoosePaginate);
 
 // Export the Employee model
 const Employee = mongoose.model("Employee", EmployeeSchema);
