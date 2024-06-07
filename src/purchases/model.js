@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
@@ -10,62 +9,55 @@ const PurchaseSchema = new Schema(
       ref: "departments",
       required: true,
     },
-    createdDate: {
+    purchaseDate: {
       type: Date,
       required: true,
-      
     },
     expectedDate: {
       type: Date,
       required: true,
-      
     },
     orderStatus: {
       type: String,
-      enum:['Pending','Received','Processing','Shipped'],
+      enum: ["Pending", "Received", "Processing", "Shipped"],
       required: true,
-      
     },
     paymentStatus: {
       type: String,
-      enum:['Paid','Pending','Overdue'],
+      enum: ["Paid", "Pending", "Overdue"],
       required: true,
-      
     },
     billingAddress: {
       type: String,
-      required:true
+      required: true,
     },
     shippingAddress: {
       type: String,
-      required:true
+      required: true,
     },
     items: {
       type: Array,
-      required:true,
-      default:[]
+      required: true,
+      default: [],
     },
-    orderAmount : {
+    orderAmount: {
       type: Number,
-      required:true
+      required: true,
     },
-    taxInformation  : {
+    taxInformation: {
       type: String,
-      required:true
+      required: true,
     },
     invoiceId: {
       type: String,
-      required:true
+      required: true,
     },
-   
   },
   {
     timestamps: true,
     versionKey: false,
   }
 );
-;
-
 // Export the Purchase model
 const Purchase = mongoose.model("Purchase", PurchaseSchema);
 
