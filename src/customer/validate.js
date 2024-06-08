@@ -14,10 +14,10 @@ export const validate = [
       .notEmpty()
       .withMessage("Address is required"),
 
-   //contect validation
-   body("contect")
+   //contact validation
+   body("contact")
       .notEmpty()
-      .withMessage("contect is required"),
+      .withMessage("contact is required"),
 
    //gender validation 
    body("gender")

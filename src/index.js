@@ -12,12 +12,14 @@ import userRouter from "./users/route.js";
 import employeeRouter from "./employees/route.js";
 import customerRouter from "./customer/route.js";
 import purchasesRoutes from "./purchases/route.js";
-import supplierRoutes from "./supplier/route.js"
-import expenseCategoryRoutes from "./expanseCategories/route.js"
-import expensesRoutes from "./expenses/route.js"
-import productCategoryRoutes from "./productCategories/route.js"
-import inventoryAdjustmentsRoutes from "./inventoryAdjustments/route.js"
-import productsRoutes from "./products/route.js"
+import supplierRoutes from "./supplier/route.js";
+import expenseCategoryRoutes from "./expanseCategories/route.js";
+import expensesRoutes from "./expenses/route.js";
+import productCategoryRoutes from "./productCategories/route.js";
+import inventoryAdjustmentsRoutes from "./inventoryAdjustments/route.js";
+import productsRoutes from "./products/route.js";
+import salesRoutes from "./sales/route.js";
+import invoiceRoutes from "./invoices/route.js";
 
 dotenv.config();
 
@@ -57,6 +59,8 @@ app.use("/api/expenses", expensesRoutes);
 app.use("/api/expenseCategories", expenseCategoryRoutes);
 app.use("/api/productCategories", productCategoryRoutes);
 app.use("/api/inventoryAdjustments", inventoryAdjustmentsRoutes);
+app.use("/api/sales", salesRoutes);
+app.use("/api/invoices", invoiceRoutes);
 
 app.use("/*", (req, res) => {
   res.status(404).json({ status: false, message: "Incorrect URL Destination" });

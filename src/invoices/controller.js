@@ -1,79 +1,75 @@
 import { validationResult } from "express-validator";
-import Customer from "./model.js";
+import Invoice from "./model.js";
 import { isValidObjectId } from "mongoose";
 import { getAll } from "../utils/query.js";
 
-//
-export const getCustomers = getAll(Customer);
+// Fetching All Invoices
+export const getInvoices = getAll(Invoice);
 
-export const createCustomer = async (req, res) => {
+//creating Invoice document
+export const createInvoice = async (req, res) => {
   try {
     const { error } = validationResult(req);
     if (error?.length) throw new Error(error[0]?.msg);
 
-    const customer = await Customer.create(req.body);
+    const invoice = await Invoice.create(req.body);
 
     res.status(201).send({
       status: true,
-      message: "customer created is successfully...",
-      data: customer,
+      message: "invoice created is successfully...",
+      data: invoice,
     });
   } catch (err) {
     res.status(400).json({ status: false, message: err.message });
   }
 };
 
-export const updateCustomer = async (req, res) => {
+// update selected Invoice
+export const updateInvoice = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidObjectId(id))
       return res
         .status(400)
-        .json({ status: false, message: "invalid customer Id" });
+        .json({ status: false, message: "invalid invoice Id" });
 
-    const updateCustom = await Customer.findOneAndUpdate(
-      { _id: id },
-      req.body,
-      {
-        new: true,
-      }
-    );
+    const updateInv = await Invoice.findOneAndUpdate({ _id: id }, req.body, {
+      new: true,
+    });
 
-    if (!updateCustom)
+    if (!updateInv)
       return res
         .status(400)
         .json({ status: false, message: "invalid action, nothing updated" });
     res.status(201).send({
       status: true,
-      message: "custom updated successfully..",
-      data: updateCustom,
+      message: "Invoice updated successfully..",
+      data: updateInv,
     });
   } catch (err) {
     res.status(500).json({ status: false, message: err.message });
   }
 };
 
-export const deleteCustomer = async (req, res) => {
+// removing selected Invoice
+export const deleteInvoice = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidObjectId(id))
       return res
         .status(400)
-        .json({ status: false, message: "invalid customer id" });
+        .json({ status: false, message: "invalid invoice id" });
 
-    const deleteCustom = await Customer.findOneAndDelete(
-      { _id: id },
-      { new: true }
-    );
-    if (!deleteCustom)
+    const deleteInv = await Invoice.findOneAndDelete({ _id: id }, { new: true });
+    if (!deleteInv)
       return res
         .status(400)
         .json({ status: false, message: "invalid Action, nothing to deleted" });
 
     res.status(201).send({
       status: true,
-      data: deleteCustom,
-      message: "customer deleted successfully...",
+      message: "invoice deleted successfully...",
+      data: deleteInv,
     });
   } catch (err) {
     res.status(500).json({ status: false, message: err.message });

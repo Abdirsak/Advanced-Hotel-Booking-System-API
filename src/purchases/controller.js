@@ -39,9 +39,13 @@ export const updatePurchase = async (req, res) => {
         .status(400)
         .json({ status: false, message: "Invalid branch id" });
 
-    const updatedPurchase = await Purchase.findOneAndUpdate({ _id: id }, req.body, {
-      new: true,
-    });
+    const updatedPurchase = await Purchase.findOneAndUpdate(
+      { _id: id },
+      req.body,
+      {
+        new: true,
+      }
+    );
     if (!updatedPurchase)
       return res
         .status(400)

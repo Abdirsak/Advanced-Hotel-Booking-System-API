@@ -1,79 +1,75 @@
 import { validationResult } from "express-validator";
-import Customer from "./model.js";
+import Sales from "./model.js";
 import { isValidObjectId } from "mongoose";
 import { getAll } from "../utils/query.js";
 
-//
-export const getCustomers = getAll(Customer);
+// Fetching All sales
+export const getSales = getAll(Sales);
 
-export const createCustomer = async (req, res) => {
+//creating sales document
+export const createSales = async (req, res) => {
   try {
     const { error } = validationResult(req);
     if (error?.length) throw new Error(error[0]?.msg);
 
-    const customer = await Customer.create(req.body);
+    const sales = await Sales.create(req.body);
 
     res.status(201).send({
       status: true,
-      message: "customer created is successfully...",
-      data: customer,
+      message: "sales created is successfully...",
+      data: sales,
     });
   } catch (err) {
     res.status(400).json({ status: false, message: err.message });
   }
 };
 
-export const updateCustomer = async (req, res) => {
+// update selected sales
+export const updateSales = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidObjectId(id))
       return res
         .status(400)
-        .json({ status: false, message: "invalid customer Id" });
+        .json({ status: false, message: "invalid sales Id" });
 
-    const updateCustom = await Customer.findOneAndUpdate(
-      { _id: id },
-      req.body,
-      {
-        new: true,
-      }
-    );
+    const updateSale = await Sales.findOneAndUpdate({ _id: id }, req.body, {
+      new: true,
+    });
 
-    if (!updateCustom)
+    if (!updateSale)
       return res
         .status(400)
         .json({ status: false, message: "invalid action, nothing updated" });
     res.status(201).send({
       status: true,
-      message: "custom updated successfully..",
-      data: updateCustom,
+      message: "Sale updated successfully..",
+      data: updateSale,
     });
   } catch (err) {
     res.status(500).json({ status: false, message: err.message });
   }
 };
 
-export const deleteCustomer = async (req, res) => {
+// removing selected Sales
+export const deleteSales = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidObjectId(id))
       return res
         .status(400)
-        .json({ status: false, message: "invalid customer id" });
+        .json({ status: false, message: "invalid sales id" });
 
-    const deleteCustom = await Customer.findOneAndDelete(
-      { _id: id },
-      { new: true }
-    );
-    if (!deleteCustom)
+    const deleteSale = await Sales.findOneAndDelete({ _id: id }, { new: true });
+    if (!deleteSale)
       return res
         .status(400)
         .json({ status: false, message: "invalid Action, nothing to deleted" });
 
     res.status(201).send({
       status: true,
-      data: deleteCustom,
-      message: "customer deleted successfully...",
+      message: "Sale deleted successfully...",
+      data: deleteSale,
     });
   } catch (err) {
     res.status(500).json({ status: false, message: err.message });
