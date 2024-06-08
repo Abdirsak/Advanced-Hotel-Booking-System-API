@@ -41,7 +41,7 @@ export const createSales = async (req, res) => {
     let totalAmount = 0;
 
     for (const item of salesItems) {
-      const { productId, quantity, price } = item;   
+      const { productId, quantity } = item;   
       if (quantity <= 0) {
         await session.abortTransaction();
         session.endSession();
@@ -55,23 +55,23 @@ export const createSales = async (req, res) => {
         return res.status(404).json({ status: false, message: `Product not found for ID: ${productId}` });
       }
 
-      if (product.stock < quantity) {
+      if (product.quantity < quantity) {
         await session.abortTransaction();
         session.endSession();
         return res.status(400).json({ status: false, message: `Insufficient stock for product ID: ${productId}` });
       }
 
-      const itemTotal = quantity * product.price;
+      const itemTotal = quantity * product?.price;
       item.total = itemTotal;
       totalAmount += itemTotal;
 
       // Reduce the stock
-      product.stock -= quantity;
+      product.quantity -= quantity;
       await product.save({ session });
     }
 
     // Apply discount if provided
-    const finalAmount = totalAmount - discount ;
+    const finalAmount = totalAmount - discount 
     if (finalAmount < 0) {
       await session.abortTransaction();
       session.endSession();
