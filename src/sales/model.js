@@ -18,6 +18,23 @@ const salesSchema = new Schema({
     type: Number,
     required: true,
   },
+  discount: {
+    type: Number,
+    default: 0,
+  },
+  salesItems:[
+    {
+      productId: {
+        type: Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+      },
+    quantity:  Number,
+    price: Number,
+    total: Number
+
+    }
+  ],
   status: {
     type: String,
     required: true,

@@ -12,7 +12,7 @@ export const validate = [
   body("saleDate").notEmpty().withMessage("Sale Date is required").isDate(),
 
   //TotalAmount validation
-  body("totalAmount").notEmpty().withMessage("totalAmount is Required field"),
+  // body("totalAmount").notEmpty().withMessage("totalAmount is Required field"),
 
   // Status validation
   body("status")

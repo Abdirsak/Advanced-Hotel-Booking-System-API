@@ -35,9 +35,16 @@ const ProductSchema = new Schema(
       type: Date,
       required: true,
     },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+    sku: String,
+    reorder_level: Number,
+
     picture: {
       type: String,
-      required: true,
+      required: false,
       default: "No picture",
     },
     supplier: {
@@ -61,3 +68,4 @@ ProductSchema.plugin(MongoosePaginate);
 const Product = mongoose.model("Product", ProductSchema);
 
 export default Product;
+

@@ -33,13 +33,21 @@ const PurchaseSchema = new Schema(
     },
     shippingAddress: {
       type: String,
-      required: true,
+      required: true,  
     },
-    items: {
-      type: Array,
-      required: true,
-      default: [],
-    },
+
+    items: [
+      {
+      productId: {
+        type: Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+      },
+      quantity: Number,
+      cost: Number,
+      total: Number
+    }
+    ],
     orderAmount: {
       type: Number,
       required: true,
