@@ -116,53 +116,187 @@ export const createSales = async (req, res) => {
 };
 
 // update selected sales
-export const updateSales = async (req, res) => {
+// export const updateSales = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     if (!isValidObjectId(id))
+//       return res
+//         .status(400)
+//         .json({ status: false, message: "invalid sales Id" });
+
+//     const updateSale = await Sales.findOneAndUpdate({ _id: id }, req.body, {
+//       new: true,
+//     });
+
+//     if (!updateSale)
+//       return res
+//         .status(400)
+//         .json({ status: false, message: "invalid action, nothing updated" });
+//     res.status(201).send({
+//       status: true,
+//       message: "Sale updated successfully..",
+//       data: updateSale,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ status: false, message: err.message });
+//   }
+// };
+
+// // removing selected Sales
+// export const deleteSales = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     if (!isValidObjectId(id))
+//       return res
+//         .status(400)
+//         .json({ status: false, message: "invalid sales id" });
+
+//     const deleteSale = await Sales.findOneAndDelete({ _id: id }, { new: true });
+//     if (!deleteSale)
+//       return res
+//         .status(400)
+//         .json({ status: false, message: "invalid Action, nothing to deleted" });
+
+//     res.status(201).send({
+//       status: true,
+//       message: "Sale deleted successfully...",
+//       data: deleteSale,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ status: false, message: err.message });
+//   }
+// };
+
+export const deleteSales = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { id } = req.params;
-    if (!isValidObjectId(id))
-      return res
-        .status(400)
-        .json({ status: false, message: "invalid sales Id" });
 
-    const updateSale = await Sales.findOneAndUpdate({ _id: id }, req.body, {
-      new: true,
-    });
+    // Fetch the existing sale
+    const sale = await Sales.findById(id).session(session);
+    if (!sale) {
+      throw new Error('Sale not found');
+    }
 
-    if (!updateSale)
-      return res
-        .status(400)
-        .json({ status: false, message: "invalid action, nothing updated" });
-    res.status(201).send({
-      status: true,
-      message: "Sale updated successfully..",
-      data: updateSale,
-    });
+    // Revert inventory changes from existing items
+    for (const item of sale.salesItems) {
+      const product = await Product.findById(item.productId).session(session);
+      if (!product) {
+        throw new Error(`Product not found: ${item.productId}`);
+      }
+      product.quantity += item.quantity;
+      await product.save({ session });
+    }
+
+    // Remove the invoice
+    await Invoice.deleteOne({ sales: sale._id }).session(session);
+
+    // Remove the sale
+    await Sales.deleteOne({ _id: sale._id }).session(session);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(200).json({ status: true, message: 'Sale deleted successfully' });
   } catch (err) {
-    res.status(500).json({ status: false, message: err.message });
+    await session.abortTransaction();
+    session.endSession();
+    return res.status(400).json({ status: false, message: err.message });
   }
 };
 
-// removing selected Sales
-export const deleteSales = async (req, res) => {
+export const updateSales = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const { id } = req.params;
-    if (!isValidObjectId(id))
-      return res
-        .status(400)
-        .json({ status: false, message: "invalid sales id" });
+    const {id} = req.params
+    const {  customer, saleDate, salesItems, status, discount } = req.body;
 
-    const deleteSale = await Sales.findOneAndDelete({ _id: id }, { new: true });
-    if (!deleteSale)
-      return res
-        .status(400)
-        .json({ status: false, message: "invalid Action, nothing to deleted" });
+    // Fetch the existing sale
+    const sale = await Sales.findById(id).session(session);
+    if (!sale) {
+      throw new Error('Sale not found');
+    }
 
-    res.status(201).send({
-      status: true,
-      message: "Sale deleted successfully...",
-      data: deleteSale,
-    });
+    // Revert inventory changes from existing items
+    for (const item of sale.salesItems) {
+      const product = await Product.findById(item.productId).session(session);
+      if (!product) {
+        throw new Error(`Product not found: ${item.productId}`);
+      }
+      product.quantity += item.quantity;
+      await product.save({ session });
+    }
+
+    // Clear existing items
+    sale.salesItems = [];
+    sale.totalAmount = 0;
+
+    let totalAmount = 0;
+
+    // Process new items
+    for (const newItem of salesItems) {
+      const { productId, quantity } = newItem;
+
+      // Validate quantity
+      if (quantity <= 0) {
+        throw new Error('Quantity must be greater than zero for each item');
+      }
+
+      // Validate product ID
+      const product = await Product.findById(productId).session(session);
+      if (!product) {
+        throw new Error(`Product not found: ${productId}`);
+      }
+
+      // Ensure sufficient stock
+      if (product.quantity < quantity) {
+        throw new Error(`Insufficient stock for product ID: ${productId}`);
+      }
+
+      // Calculate total for the item
+      const itemTotal = quantity * product.price;
+      newItem.total = itemTotal;
+      totalAmount += itemTotal;
+
+      // Reduce product quantity
+      product.quantity -= quantity;
+      await product.save({ session });
+
+      // Add item to sale
+      sale.salesItems.push({ productId, quantity, total: itemTotal });
+    }
+
+    // Apply discount if provided
+    const finalAmount = totalAmount - discount;
+    if (finalAmount < 0) {
+      throw new Error('Discount cannot exceed total amount');
+    }
+
+    sale.customer = customer;
+    sale.saleDate = saleDate;
+    sale.totalAmount = finalAmount;
+    sale.discount = discount || 0;
+    sale.status = status;
+
+    await sale.save({ session });
+
+    // Update invoice
+    const invoice = await Invoice.findOne({ sales: sale._id }).session(session);
+    invoice.totalAmount = finalAmount;
+    invoice.status = 'unpaid'; // Reset status to unpaid
+    await invoice.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(200).json({ status: true, message: 'Sale updated successfully', sale, invoice });
   } catch (err) {
-    res.status(500).json({ status: false, message: err.message });
+    await session.abortTransaction();
+    session.endSession();
+    return res.status(400).json({ status: false, message: err.message });
   }
 };

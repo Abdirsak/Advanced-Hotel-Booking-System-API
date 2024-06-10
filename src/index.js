@@ -21,6 +21,7 @@ import productsRoutes from "./products/route.js";
 import salesRoutes from "./sales/route.js";
 import invoiceRoutes from "./invoices/route.js";
 import paymentRoutes from "./payments/route.js";
+import receiptRoutes from "./receipts/route.js";
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ app.use("/api/inventoryAdjustments", inventoryAdjustmentsRoutes);
 app.use("/api/sales", salesRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/receipts", receiptRoutes);
 
 app.use("/*", (req, res) => {
   res.status(404).json({ status: false, message: "Incorrect URL Destination" });

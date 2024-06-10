@@ -48,7 +48,7 @@ const PurchaseSchema = new Schema(
       total: Number
     }
     ],
-    orderAmount: {
+    totalAmount: {
       type: Number,
       required: true,
     },

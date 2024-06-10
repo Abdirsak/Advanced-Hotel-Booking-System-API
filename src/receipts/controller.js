@@ -1,29 +1,29 @@
 import { validationResult } from "express-validator";
-import Supplier from "./model.js";
+import Receipt from "./model.js";
 import { isValidObjectId } from "mongoose";
 import { getAll } from "../utils/query.js";
 
 //
-export const getSupplier = getAll(Supplier);
+export const getReceipts = getAll(Receipt);
 
-export const createSupplier = async (req, res) => {
+export const createReceipt = async (req, res) => {
   try {
     const { error } = validationResult(req);
     if (error?.length) throw new Error(error[0]?.msg);
 
-    const supplier = await Supplier.create(req.body);
+    const receipt = await Receipt.create(req.body);
 
     res.status(201).send({
       status: true,
-      message: "supplier created is successfully...",
-      data: supplier,
+      message: "new receipt created is successfully...",
+      data: receipt,
     });
   } catch (err) {
     res.status(400).json({ status: false, message: err.message });
   }
 };
 
-export const updateSupplier = async (req, res) => {
+export const updateReceipt = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidObjectId(id))
@@ -31,25 +31,25 @@ export const updateSupplier = async (req, res) => {
         .status(400)
         .json({ status: false, message: "invalid supplier Id" });
 
-    const updateSuppl = await Supplier.findOneAndUpdate({ _id: id }, req.body, {
+    const updatedReceipt = await Receipt.findOneAndUpdate({ _id: id }, req.body, {
       new: true,
     });
 
-    if (!updateSuppl)
+    if (!updatedReceipt)
       return res
         .status(400)
         .json({ status: false, message: "invalid action, nothing updated" });
     res.status(201).send({
       status: true,
-      message: "Suppl updated successfully..",
-      data: updateSuppl,
+      message: "Receipt updated successfully..",
+      data: updatedReceipt,
     });
   } catch (err) {
     res.status(500).json({ status: false, message: err.message });
   }
 };
 
-export const deleteSupplier = async (req, res) => {
+export const deleteReceipt = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidObjectId(id))
@@ -57,19 +57,19 @@ export const deleteSupplier = async (req, res) => {
         .status(400)
         .json({ status: false, message: "invalid supplier id" });
 
-    const deleteSuppl = await Supplier.findOneAndDelete(
+    const deletedReceipt = await Receipt.findOneAndDelete(
       { _id: id },
       { new: true }
     );
-    if (!deleteSuppl)
+    if (!deletedReceipt)
       return res
         .status(400)
         .json({ status: false, message: "invalid Action, nothing to deleted" });
 
     res.status(201).send({
       status: true,
-      data: deleteSuppl,
-      message: "supplier deleted successfully...",
+      data: deletedReceipt,
+      message: "Receipt deleted successfully...",
     });
   } catch (err) {
     res.status(500).json({ status: false, message: err.message });
