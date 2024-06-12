@@ -43,9 +43,9 @@ const PurchaseSchema = new Schema(
         ref: "Product",
         required: true,
       },
-      quantity: Number,
-      cost: Number,
-      total: Number
+      quantity: {type: Number},
+      cost: {type: Number},
+      total: {type: Number}
     }
     ],
     totalAmount: {

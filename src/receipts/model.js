@@ -33,6 +33,11 @@ const ReceiptSchema = new Schema({
     type: Number,
     required: true,
   },
+  balance: {
+    type: Number,
+    required: true,
+  },
+
 
   InvoiceId: {
         type: Schema.Types.ObjectId,

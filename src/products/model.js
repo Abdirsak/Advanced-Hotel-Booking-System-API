@@ -31,7 +31,7 @@ const ProductSchema = new Schema(
       type: Number,
       required: true,
     },
-    expiredDate: {
+    expireDate: {
       type: Date,
       required: true,
     },

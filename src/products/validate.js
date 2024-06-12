@@ -29,7 +29,7 @@ export const validateProducts = [
   body("cost").notEmpty().withMessage("Product cost is required feild"),
 
   // Expired Date validation
-  body("expiredDate")
+  body("expireDate")
     .notEmpty()
     .withMessage("Expired Date is required")
     .isDate()
