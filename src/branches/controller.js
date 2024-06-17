@@ -3,7 +3,43 @@ import Branch from "./model.js";
 import { isValidObjectId } from "mongoose";
 import { getAll } from "../utils/query.js";
 
-export const getBranches = getAll(Branch);
+// export const getBranches = getAll(Branch);
+export const getBranches = async (req, res) => {
+  try {
+    const { options, query = {}, search = {} } = req.query;
+
+    // Construct search criteria if search keyword and fields are provided
+    const { keyword, fields = [] } = search;
+    let searchCriteria = {};
+
+    if (keyword && fields.length) {
+      const searchFields = Array.isArray(fields) ? fields : [fields];
+      searchCriteria = {
+        $or: searchFields.map((field) => ({
+          [field]: { $regex: keyword, $options: "i" },
+        })),
+      };
+    }
+
+    // Merge the search criteria with the provided query
+    const combinedQuery = { ...query, ...searchCriteria };
+
+    // Set up the options for pagination, including the populate option if provided
+    let paginationOptions = { ...options };
+
+    // Adding population options
+    paginationOptions.populate = [
+      { path: 'director' }
+    ];
+
+    // Execute the paginate function with the combined query and options
+    const data = await Branch.paginate(combinedQuery, paginationOptions);
+
+    return res.status(200).json({ data, status: true });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
+  }
+};
 
 export const createBranch = async (req, res) => {
   try {

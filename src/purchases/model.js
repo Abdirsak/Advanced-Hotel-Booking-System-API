@@ -44,12 +44,12 @@ const PurchaseSchema = new Schema(
         required: true,
       },
       quantity: {type: Number},
-      cost: {type: Number},
-      total: {type: Number}
+      cost: {type: Schema.Types.Decimal128},
+      total: {type: Schema.Types.Decimal128},
     }
     ],
     totalAmount: {
-      type: Number,
+      type: Schema.Types.Decimal128,
       required: true,
     },
     taxInformation: {

@@ -15,11 +15,11 @@ const salesSchema = new Schema({
     required: true,
   },
   totalAmount: {
-    type: Number,
+    type: Schema.Types.Decimal128,
     required: true,
   },
   discount: {
-    type: Number,
+    type:  Schema.Types.Decimal128,
     default: 0,
   },
   salesItems:[
@@ -29,9 +29,9 @@ const salesSchema = new Schema({
         ref: "Product",
         required: true,
       },
-    quantity:  Number,
-    price: Number,
-    total: Number
+    quantity:  {type:Number},
+    price: {type: Schema.Types.Decimal128},
+    total: {type: Schema.Types.Decimal128}
 
     }
   ],

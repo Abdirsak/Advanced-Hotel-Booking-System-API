@@ -24,11 +24,11 @@ const ProductSchema = new Schema(
       required: true,
     },
     price: {
-      type: Number,
+      type: Schema.Types.Decimal128,
       required: true,
     },
     cost: {
-      type: Number,
+      type: Schema.Types.Decimal128,
       required: true,
     },
     expireDate: {
