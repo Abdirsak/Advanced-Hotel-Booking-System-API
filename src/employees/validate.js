@@ -14,9 +14,8 @@ export const validateEmployee = [
   // Date of Birth validation
   body("dateOfBirth")
     .notEmpty()
-    .withMessage("Date of Birth is required")
-    .isDate()
-    .withMessage("Invalid Date of Birth"),
+    .withMessage("Date of Birth is required"),
+  
 
   // Gender validation
   body("gender")
@@ -51,9 +50,7 @@ export const validateEmployee = [
   // Hiring Date validation
   body("hiringDate")
     .notEmpty()
-    .withMessage("Hiring Date is required")
-    .isDate()
-    .withMessage("Invalid Hiring Date"),
+    .withMessage("Hiring Date is required"),
 
   // Salary validation
   body("salary")
