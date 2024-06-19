@@ -13,6 +13,10 @@ const PurchaseSchema = new Schema(
       type: Date,
       required: true,
     },
+    reference:{
+      type: String,
+      required: true,
+    },
     expectedDate: {
       type: Date,
       required: true,
