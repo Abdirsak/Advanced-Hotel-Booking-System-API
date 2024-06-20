@@ -3,7 +3,7 @@ import {
   createPurchase,
   deletePurchase,
   getPurchases,
-  updatePurchase,
+  updatePurchase
 } from "./controller.js";
 import { validate } from "./validate.js";
 

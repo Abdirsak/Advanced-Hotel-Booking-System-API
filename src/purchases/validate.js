@@ -26,14 +26,14 @@ export const validate = [
   // items validation
   body("items").notEmpty().withMessage("items  is required"),
 
-  // orderAmount validation
-  body("orderAmount").notEmpty().withMessage("Order Amount  is required"),
+  // total Amount validation
+  body("totalAmount").notEmpty().withMessage("Total Amount  is required"),
 
   // Tax Information validation
   body("taxInformation").notEmpty().withMessage("Tax Information  is required"),
 
   // Tax Information validation
-  body("invoiceId").notEmpty().withMessage("Invoice ID  is required")
+  // body("invoiceId").notEmpty().withMessage("Invoice ID  is required")
 
  
  

@@ -6,7 +6,7 @@ const PurchaseSchema = new Schema(
   {
     supplierId: {
       type: Schema.Types.ObjectId,
-      ref: "departments",
+      ref: "Supplier",
       required: true,
     },
     purchaseDate: {
@@ -62,7 +62,7 @@ const PurchaseSchema = new Schema(
     },
     invoiceId: {
       type: String,
-      required: true,
+      required: false,
     },
   },
   {
