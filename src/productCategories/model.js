@@ -7,12 +7,17 @@ const Schema = mongoose.Schema;
 const ProductCategoriesSchema = new Schema(
   {
     name: {
-        type: String,
-        required: true,
-      },
+      type: String,
+      required: true,
+    },
     description: {
       type: String,
       required: false,
+    },
+    status: {
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Active",
     },
 
     createdBy: {
@@ -29,6 +34,9 @@ const ProductCategoriesSchema = new Schema(
 ProductCategoriesSchema.plugin(MongoosePaginate);
 
 // Export the Product Category model
-const ProductCategory = mongoose.model("ProductCategory", ProductCategoriesSchema);
+const ProductCategory = mongoose.model(
+  "ProductCategory",
+  ProductCategoriesSchema
+);
 
 export default ProductCategory;
