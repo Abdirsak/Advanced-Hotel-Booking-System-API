@@ -5,7 +5,42 @@ import jwt from "jsonwebtoken";
 import { getAll } from "../utils/query.js";
 
 // Get users : GET /users
-export const getUsers = getAll(User);
+// export const getUsers = getAll(User);
+
+export const getUsers = async (req, res) => {
+  try {
+    const { options, query = {}, search = {} } = req.query;
+
+    // Construct search criteria if search keyword and fields are provided
+    const { keyword, fields = [] } = search;
+    let searchCriteria = {};
+
+    if (keyword && fields.length) {
+      const searchFields = Array.isArray(fields) ? fields : [fields];
+      searchCriteria = {
+        $or: searchFields.map((field) => ({
+          [field]: { $regex: keyword, $options: "i" },
+        })),
+      };
+    }
+
+    // Merge the search criteria with the provided query
+    const combinedQuery = { ...query, ...searchCriteria };
+
+    // Set up the options for pagination, including the populate option if provided
+    let paginationOptions = { ...options };
+
+    // Adding population options
+    paginationOptions.populate = [{ path: "createdBy", model: "User" }];
+
+    // Execute the paginate function with the combined query and options
+    const data = await User.paginate(combinedQuery, paginationOptions);
+
+    return res.status(200).json({ data, status: true });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
+  }
+};
 
 // Get single users : GET /users/id
 export const getUserById = async (req, res) => {
@@ -27,6 +62,7 @@ export const getUserById = async (req, res) => {
 // Create User : POST /users
 export const createUser = async (req, res) => {
   try {
+    console.log("user : ", req.user);
     const { errors } = validationResult(req);
     if (errors.length) throw new Error(errors[0]?.msg);
     const { username } = req.body;
@@ -36,11 +72,10 @@ export const createUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const user = await User.create(req.body);
+    const user = await User.create({ ...req.body, createdBy: req.user._id });
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRE,
     });
-    // res.status(201).json({ token });
 
     res.status(201).send({
       status: true,
@@ -79,7 +114,32 @@ export const Login = async (req, res) => {
   }
 };
 
-// Update User : PATCH /users/:id
+// // Update User : PATCH /users/:id
+// export const updateUser = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     if (!isValidObjectId(id))
+//       return res
+//         .status(400)
+//         .json({ status: false, message: "Invalid User id" });
+//     const updates = Object.keys(req.body);
+//     updates.forEach((update) => (req.user[update] = req.body[update]));
+//     await req.user.save();
+//     if (!updates)
+//       return res
+//         .status(400)
+//         .json({ status: false, message: "Invalid action, Nothing to update" });
+
+//     res.status(201).send({
+//       status: true,
+//       message: "User updated successfully",
+//       data: updates,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ status: false, message: err.message });
+//   }
+// };
+
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -87,18 +147,12 @@ export const updateUser = async (req, res) => {
       return res
         .status(400)
         .json({ status: false, message: "Invalid User id" });
-    const updates = Object.keys(req.body);
-    updates.forEach((update) => (req.user[update] = req.body[update]));
-    await req.user.save();
-    if (!updates)
-      return res
-        .status(400)
-        .json({ status: false, message: "Invalid action, Nothing to update" });
+    const update = await User.findByIdAndUpdate({ _id: id }, { ...req.body });
 
     res.status(201).send({
       status: true,
       message: "User updated successfully",
-      data: updates,
+      data: update,
     });
   } catch (err) {
     res.status(500).json({ status: false, message: err.message });
@@ -106,6 +160,30 @@ export const updateUser = async (req, res) => {
 };
 
 // Delete User : DELETE /users/:id
+// export const deleteUser = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     if (!isValidObjectId(id))
+//       return res
+//         .status(400)
+//         .json({ status: false, message: "Invalid User id" });
+
+//     const deletedUser = await User.findOneAndDelete({ _id: id }, { new: true });
+//     if (!deletedUser)
+//       return res
+//         .status(400)
+//         .json({ status: false, message: "Invalid action, Nothing to delete" });
+
+//     res.send({
+//       status: true,
+//       message: "User deleted successfully",
+//       data: deletedUser,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ status: false, message: err.message });
+//   }
+// };
+
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
