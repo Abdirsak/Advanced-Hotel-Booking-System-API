@@ -59,6 +59,8 @@ export const Login = async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
 
+    console.log("username is :", username);
+
     if (!user || !(await user.isCorrectPassword(password))) {
       return res.status(401).json({ message: "Invalid credentials" });
     }

@@ -36,9 +36,9 @@ export const validate = [
     .withMessage("User Status is required"),
 
     // created user validation
-  body("createdBy")
-    .notEmpty()
-    .withMessage("Created User or createdBy is required"),
+  body("createdBy"),
+    // .notEmpty()
+    // .withMessage("Created User or createdBy is required"),
 
   // Description validation
   body("description").optional()
