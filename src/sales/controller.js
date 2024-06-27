@@ -7,7 +7,120 @@ import Customer from './../customer/model.js';
 import Product from './../products/model.js';
 import Invoice from "../invoices/model.js";
 // Fetching All sales
-export const getSales = getAll(Sales);
+export const getSales = async(req,res)=>{
+  try {
+    const { options = {}, query = {}, search = {} } = req.query;
+
+    // Construct search criteria if search keyword and fields are provided
+    const { keyword, fields = [] } = search;
+    let searchCriteria = {};
+
+    if (keyword && fields.length) {
+      const searchFields = Array.isArray(fields) ? fields : [fields];
+      searchCriteria = {
+        $or: searchFields.map((field) => ({
+          [field]: { $regex: keyword, $options: "i" },
+        })),
+      };
+    }
+
+    // Merge the search criteria with the provided query
+    const combinedQuery = { ...query, ...searchCriteria };
+
+    // Set up the options for pagination, including the populate option if provided
+    const page = options.page ? parseInt(options.page, 10) : 1;
+    const limit = options.limit ? parseInt(options.limit, 10) : 10;
+
+    const data = await Sales.aggregate([
+      { $match: combinedQuery }, // Apply the combined query as a match stage
+      {
+        $unwind: "$salesItems"
+      },
+      {
+        $lookup: {
+          from: "customers",
+          localField: "customer",
+          foreignField: "_id",
+          as: "customersData"
+        }
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "salesItems.productId",
+          foreignField: "_id",
+          as: "productsData"
+        }
+      },
+      {
+        $unwind: "$productsData"
+      },
+      {
+        $unwind: "$customersData"
+      },
+      // {
+      //   $group: {
+      //     _id: "$_id",
+      //     supplierId: { $first: "$supplierId" },
+      //     purchaseDate: { $first: "$purchaseDate" },
+      //     reference: { $first: "$reference" },
+      //     expectedDate: { $first: "$expectedDate" },
+      //     orderStatus: { $first: "$orderStatus" },
+      //     paymentStatus: { $first: "$paymentStatus" },
+      //     billingAddress: { $first: "$billingAddress" },
+      //     shippingAddress: { $first: "$shippingAddress" },
+      //     totalAmount: { $first: "$totalAmount" },
+      //     taxInformation: { $first: "$taxInformation" },
+      //     invoiceId: { $first: "$invoiceId" },
+      //     items: {
+      //       $push: {
+      //         productId: "$items.productId",
+      //         quantity: "$items.quantity",
+      //         cost: "$items.cost",
+      //         total: "$items.total",
+      //         productDetails: "$productsData"
+      //       }
+      //     },
+      //     supplierDetails: { $first: "$supplierData" }
+      //   }
+      // },
+      // {
+      //   $project: {
+      //     _id: 1,
+      //     supplierId: 1,
+      //     purchaseDate: 1,
+      //     reference: 1,
+      //     expectedDate: 1,
+      //     orderStatus: 1,
+      //     paymentStatus: 1,
+      //     billingAddress: 1,
+      //     shippingAddress: 1,
+      //     totalAmount: 1,
+      //     taxInformation: 1,
+      //     invoiceId: 1,
+      //     items: 1,
+      //     supplierDetails: 1
+      //   }
+      // },
+      { $skip: (page - 1) * limit },
+      { $limit: limit }
+    ]);
+
+    const totalDocs = await Sales.countDocuments(combinedQuery);
+
+    return res.status(200).json({
+      data: {
+        docs: data,
+        totalDocs,
+        totalPages: Math.ceil(totalDocs / limit),
+        currentPage: page,
+      },
+      status: true
+    });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
+  }
+};
 
 //creating sales document
 export const createSales = async (req, res) => {
@@ -22,7 +135,7 @@ export const createSales = async (req, res) => {
       return res.status(400).json({ status: false, errors: errors.array() });
     }
 
-    const { customer, saleDate, salesItems, status, discount } = req.body;
+    const { customer, saleDate, salesItems, status, discount,paidBalance,totalAmount } = req.body;
 
     const customerInfo = await Customer.findById(customer).session(session);
     
@@ -38,7 +151,7 @@ export const createSales = async (req, res) => {
       return res.status(400).json({ status: false, message: 'Sales items are required' });
     }
 
-    let totalAmount = 0;
+    // let totalAmount = 0;
 
     for (const item of salesItems) {
       const { productId, quantity } = item;   
@@ -61,17 +174,19 @@ export const createSales = async (req, res) => {
         return res.status(400).json({ status: false, message: `Insufficient stock for product ID: ${productId}` });
       }
 
-      const itemTotal = quantity * product?.price;
-      item.total = itemTotal;
-      totalAmount += itemTotal;
+      // const itemTotal = quantity * product?.price;
+      // item.total = itemTotal;
+      // totalAmount += itemTotal;
 
       // Reduce the stock
-      product.quantity -= quantity;
-      await product.save({ session });
+      // product.quantity -= quantity;
+      // await product.save({ session });
+      await Product.findByIdAndUpdate(productId, { $inc: { quantity: quantity } }, { session });
     }
 
     // Apply discount if provided
     const finalAmount = totalAmount - discount 
+    const balance = totalAmount - paidBalance - discount
     if (finalAmount < 0) {
       await session.abortTransaction();
       session.endSession();
@@ -81,10 +196,11 @@ export const createSales = async (req, res) => {
     const sale = new Sales({
       customer,
       saleDate,
-      totalAmount: finalAmount,
+      totalAmount: paidBalance,
       discount: discount || 0,
       salesItems,
       status,
+      balance
     });
 
     await sale.save({ session });

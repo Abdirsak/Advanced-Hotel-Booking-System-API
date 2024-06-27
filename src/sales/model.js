@@ -22,6 +22,10 @@ const salesSchema = new Schema({
     type:  Schema.Types.Decimal128,
     default: 0,
   },
+  balance: {
+    type:  Schema.Types.Decimal128,
+    default: 0,
+  },
   salesItems:[
     {
       productId: {
