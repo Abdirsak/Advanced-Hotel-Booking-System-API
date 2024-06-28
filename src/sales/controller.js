@@ -2,11 +2,12 @@ import { validationResult } from "express-validator";
 import mongoose from "mongoose";
 import Sales from "./model.js";
 import { isValidObjectId } from "mongoose";
-import { getAll } from "../utils/query.js";
+import { getAll,getSingle } from "../utils/query.js";
 import Customer from './../customer/model.js';
 import Product from './../products/model.js';
 import Invoice from "../invoices/model.js";
 // Fetching All sales
+export const getSalesById = getSingle(Sales)
 export const getSales = async(req,res)=>{
   try {
     const { options = {}, query = {}, search = {} } = req.query;
@@ -400,7 +401,7 @@ export const updateSales = async (req, res) => {
 
     await sale.save({ session });
 
-    // Update invoice
+    // Update invoice 
     const invoice = await Invoice.findOne({ sales: sale._id }).session(session);
     invoice.totalAmount = finalAmount;
     invoice.status = 'unpaid'; // Reset status to unpaid
