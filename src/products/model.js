@@ -24,11 +24,11 @@ const ProductSchema = new Schema(
       required: true,
     },
     price: {
-      type: Schema.Types.Decimal128,
+      type: Number,
       required: true,
     },
     cost: {
-      type: Schema.Types.Decimal128,
+      type: Number,
       required: true,
     },
     expireDate: {
@@ -68,4 +68,3 @@ ProductSchema.plugin(MongoosePaginate);
 const Product = mongoose.model("Product", ProductSchema);
 
 export default Product;
-
