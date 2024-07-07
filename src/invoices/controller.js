@@ -4,7 +4,70 @@ import { isValidObjectId } from "mongoose";
 import { getAll } from "../utils/query.js";
 
 // Fetching All Invoices
-export const getInvoices = getAll(Invoice);
+export const getInvoices = async (req, res) => {
+  try {
+    const { options = {}, query = {}, search = {} } = req.query;
+
+    // Construct search criteria if search keyword and fields are provided
+    const { keyword, fields = [] } = search;
+    let searchCriteria = {};
+
+    if (keyword && fields.length) {
+      const searchFields = Array.isArray(fields) ? fields : [fields];
+      searchCriteria = {
+        $or: searchFields.map((field) => ({
+          [field]: { $regex: keyword, $options: "i" },
+        })),
+      };
+    }
+
+    // Merge the search criteria with the provided query
+    const combinedQuery = { ...query, ...searchCriteria };
+
+    // Set up the options for pagination, including the populate option if provided
+    const page = options.page ? parseInt(options.page, 10) : 1;
+    const limit = options.limit ? parseInt(options.limit, 10) : 10;
+
+    const data = await  Invoice.aggregate([
+      { $match: combinedQuery }, // Apply the combined query as a match stage
+      {
+        $lookup: {
+          from: "sales",
+          localField: "sales",
+          foreignField: "_id",
+          as: "salesData"
+        }
+      },
+      {
+        $lookup: {
+          from: "customers",
+          localField: "salesData.customer",
+          foreignField: "_id",
+          as: "customerData"
+        }
+      },
+      {$unwind: "$salesData"},
+      {$unwind: "$customerData"},
+   
+      { $skip: (page - 1) * limit },
+      { $limit: limit }
+    ]);
+
+    const totalDocs = await Invoice.countDocuments(combinedQuery);
+
+    return res.status(200).json({
+      data: {
+        docs: data,
+        totalDocs,
+        totalPages: Math.ceil(totalDocs / limit),
+        currentPage: page,
+      },
+      status: true
+    });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
+  }
+};
 
 //creating Invoice document
 export const createInvoice = async (req, res) => {

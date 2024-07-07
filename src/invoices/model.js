@@ -19,7 +19,7 @@ const InvoiceSchema = new Schema({
     required: true,
   },
   totalAmount: {
-    type: Schema.Types.Decimal128,
+    type: Number,
     required: true,
   },
   status: {

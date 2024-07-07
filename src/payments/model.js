@@ -14,7 +14,7 @@ const PaymentSchema = new Schema(
       required: true,
     },
     amount: {
-      type: Schema.Types.Decimal128,
+      type: Number,
       required: true,
     },
     method: {
