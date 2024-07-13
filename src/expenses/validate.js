@@ -1,8 +1,4 @@
 import { body } from "express-validator";
-import mongoose from "mongoose";
-
-// Import the Products model
-import Expense from "./model.js";
 
 // Validation middleware
 export const validateExpenses = [
@@ -18,9 +14,5 @@ export const validateExpenses = [
   body("amount").notEmpty().withMessage("Amount is required"),
 
   // Expense Date validation
-  body("expDate")
-    .notEmpty()
-    .withMessage("Expired Date is required")
-    .isDate()
-    .withMessage("Expired Date must be Date"),
+  body("date").notEmpty().withMessage("Date is required"),
 ];

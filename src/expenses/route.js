@@ -5,15 +5,18 @@ import {
   getAllExpenses,
   getSingleExpense,
   updateExpense,
+  payExpense,
 } from "./controller.js";
 import { validateExpenses } from "./validate.js";
+import { AuthMiddleware } from "../users/middlewares.js";
 
 const router = express.Router();
 
-router.get("/", getAllExpenses);
-router.get("/:id", getSingleExpense);
-router.post("/", validateExpenses, createExpense);
-router.patch("/:id", updateExpense);
-router.delete("/:id", deleteExpense);
+router.get("/", AuthMiddleware, getAllExpenses);
+router.get("/:id", AuthMiddleware, getSingleExpense);
+router.post("/", AuthMiddleware, validateExpenses, createExpense);
+router.patch("/pay/:id", AuthMiddleware, validateExpenses, payExpense);
+router.patch("/:id", AuthMiddleware, updateExpense);
+router.delete("/:id", AuthMiddleware, deleteExpense);
 
 export default router;

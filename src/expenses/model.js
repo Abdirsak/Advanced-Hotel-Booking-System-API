@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 // Define the Expense schema
 const ExpenseSchema = new Schema(
   {
-    expDate: {
+    date: {
       type: Date,
       required: true,
     },
@@ -19,10 +19,16 @@ const ExpenseSchema = new Schema(
       type: Number,
       required: true,
     },
-  
+
     category: {
       type: Schema.Types.ObjectId,
       ref: "ExpenseCategory",
+    },
+    status: {
+      type: String,
+      enum: ["paid", "unPaid"],
+      required: true,
+      default: "unPaid",
     },
     createdBy: {
       type: Schema.Types.ObjectId,

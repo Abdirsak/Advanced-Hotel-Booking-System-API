@@ -5,10 +5,16 @@ const Schema = mongoose.Schema;
 // Define the Payment schema
 const PaymentSchema = new Schema(
   {
-    invoiceId: {
-        type: Schema.Types.ObjectId,
-        ref: "Invoice",
-      },
+    expenseId: {
+      type: Schema.Types.ObjectId,
+      ref: "Expense",
+      default: null,
+    },
+    purchaseId: {
+      type: Schema.Types.ObjectId,
+      ref: "Purchase",
+      default: null,
+    },
     paymentDate: {
       type: Date,
       required: true,
@@ -21,7 +27,6 @@ const PaymentSchema = new Schema(
       type: String,
       required: false,
     },
-
   },
   {
     timestamps: true,
