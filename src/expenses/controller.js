@@ -110,6 +110,7 @@ export const payExpense = async (req, res) => {
     }
 
     const payment = await Payment.create({
+      expenseId: expense._id,
       paymentDate: new Date(),
       amount: expense.amount,
       method,
@@ -119,7 +120,7 @@ export const payExpense = async (req, res) => {
       const updateExpense = await Expense.findByIdAndUpdate(
         expense._id,
         { status: "paid" },
-        { new: true } // To return the updated document
+        { new: true }
       );
 
       if (!updateExpense) {
