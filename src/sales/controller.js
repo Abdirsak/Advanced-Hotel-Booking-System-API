@@ -136,7 +136,7 @@ export const createSales = async (req, res) => {
       return res.status(400).json({ status: false, errors: errors.array() });
     }
 
-    const { customer, saleDate, salesItems, status, discount,paidBalance,totalAmount } = req.body;
+    const { customer, saleDate, salesItems, status, discount,paidBalance,totalAmount,reference } = req.body;
 
     const customerInfo = await Customer.findById(customer).session(session);
     
@@ -212,6 +212,8 @@ export const createSales = async (req, res) => {
       invoiceDate: new Date(),
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       totalAmount: finalAmount,
+      paidAmount: paidBalance,
+      reference:reference,
       status: 'unpaid',
     });
 

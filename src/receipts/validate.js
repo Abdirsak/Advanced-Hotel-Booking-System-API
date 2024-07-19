@@ -15,7 +15,7 @@ export const validate = [
   body("amount").notEmpty().withMessage("Amount is Required field"),
 
 //   reference validation
-  body("reference").notEmpty().withMessage("reference is Required field"),
+  // body("reference").notEmpty().withMessage("reference is Required field"),
 
 //   receipt No validation
   body("receiptNo").notEmpty().withMessage("receipt No is Required field"),

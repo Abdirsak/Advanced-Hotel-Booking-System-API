@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import MongoosePaginate from "mongoose-paginate-v2";
+import Invoice from "../invoices/model.js";
+import Sales from "../sales/model.js";
 
 const Schema = mongoose.Schema;
 //sales schema
@@ -9,6 +11,7 @@ const ReceiptSchema = new Schema({
     ref: "Customer",
     required: true,
   },
+
   receiptNo: {
     type: Number,
     required: true,
@@ -19,10 +22,10 @@ const ReceiptSchema = new Schema({
   },
   reference: {
     type: String,
-    required: true,
+    required: false,
   },
   method: {
-    type: Date,
+    type: String,
     required: true,
   },
   receiptDate: {
@@ -39,15 +42,42 @@ const ReceiptSchema = new Schema({
   },
 
 
-  InvoiceId: {
+  invoiceId: {
         type: Schema.Types.ObjectId,
         ref: "Invoice",
         required: true,
       },
 
 });
-
+ 
 ReceiptSchema.plugin(MongoosePaginate);
+// Middleware to update balance before saving
+ReceiptSchema.pre("save", async function (next) {
+  const receipt = this;
+  const invoice = await mongoose.model("Invoice").findById(receipt?.invoiceId);
+  const Sale = await mongoose.model("Sales").findById(invoice?.sales);
+
+  if (!invoice) {
+    const err = new Error("Invoice not found");
+    return next(err);
+  }
+
+  // Update the paid amount and calculate balance
+  invoice.paidAmount += receipt.amount;
+  Sale.balance = Sales.balance - receipt.amount;
+  receipt.balance = invoice.totalAmount - Invoice.paidAmount;
+
+  // Update the status of the invoice based on the balance
+  if (receipt.balance <= 0) {
+    invoice.status = 'paid';
+  } else {
+    invoice.status = 'unpaid';
+  }
+
+  await invoice.save();
+  await Sale.save();
+  next();
+});
 
 const Receipt = mongoose.model("Receipt", ReceiptSchema);
 
