@@ -63,13 +63,17 @@ ReceiptSchema.pre("save", async function (next) {
   }
 
   // Update the paid amount and calculate balance
-  invoice.paidAmount += receipt.amount;
-  Sale.balance = Sales.balance - receipt.amount;
-  receipt.balance = invoice.totalAmount - Invoice.paidAmount;
 
+  invoice.paidAmount += receipt.amount;
+  Sale.balance = parseInt(Sale.balance - receipt.amount);
+  receipt.balance = Sale.balance;
+
+ 
+  // console.log("paid amount: ",Sale.balance)
   // Update the status of the invoice based on the balance
   if (receipt.balance <= 0) {
     invoice.status = 'paid';
+    Sale.status = 'completed';
   } else {
     invoice.status = 'unpaid';
   }
