@@ -51,6 +51,11 @@ const ProductSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Supplier",
     },
+    branch: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+      required: false,
+    },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",

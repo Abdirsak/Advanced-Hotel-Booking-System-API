@@ -19,7 +19,11 @@ const ExpenseSchema = new Schema(
       type: Number,
       required: true,
     },
-
+    branch: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+      required: true,
+    },
     category: {
       type: Schema.Types.ObjectId,
       ref: "ExpenseCategory",

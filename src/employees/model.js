@@ -47,6 +47,11 @@ const EmployeeSchema = new Schema(
       type: String,
       required: true,
     },
+    branch: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+      default: null,
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",

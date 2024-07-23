@@ -11,7 +11,11 @@ const ReceiptSchema = new Schema({
     ref: "Customer",
     required: true,
   },
-
+  branch: {
+    type: Schema.Types.ObjectId,
+    ref: "Branch",
+    required: false,
+  },
   receiptNo: {
     type: Number,
     required: true,

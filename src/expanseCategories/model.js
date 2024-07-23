@@ -14,7 +14,11 @@ const ExpenseCategorySchema = new Schema(
       type: String,
       required: false,
     },
-
+    branch: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+      required: true,
+    },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",

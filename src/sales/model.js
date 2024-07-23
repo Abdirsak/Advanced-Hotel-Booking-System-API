@@ -44,6 +44,16 @@ const salesSchema = new Schema({
     required: true,
     enum: ["completed", "pending", "cancelled"],
   },
+  branch: {
+    type: Schema.Types.ObjectId,
+    ref: "Branch",
+    required: false,
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
 });
 
 salesSchema.plugin(MongoosePaginate);

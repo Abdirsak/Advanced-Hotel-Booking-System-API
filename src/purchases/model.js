@@ -9,6 +9,11 @@ const PurchaseSchema = new Schema(
       ref: "Supplier",
       required: true,
     },
+    branch: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+      required: true,
+    },
     purchaseDate: {
       type: Date,
       required: true,
