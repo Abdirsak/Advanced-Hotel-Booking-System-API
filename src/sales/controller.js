@@ -123,6 +123,274 @@ export const getSales = async(req,res)=>{
   }
 };
 
+export const getLosOrProfitSales = async(req,res)=>{
+  try {
+    if(!req.params.startDate && !req.params.endDate){
+    const { options = {}, query = {}, search = {} } = req.query;
+
+    // Construct search criteria if search keyword and fields are provided
+    const { keyword, fields = [] } = search;
+    let searchCriteria = {};
+
+    if (keyword && fields.length) {
+      const searchFields = Array.isArray(fields) ? fields : [fields];
+      searchCriteria = {
+        $or: searchFields.map((field) => ({
+          [field]: { $regex: keyword, $options: "i" },
+        })),
+      };
+    }
+
+    // Merge the search criteria with the provided query
+    const combinedQuery = { ...query, ...searchCriteria };
+
+    // Set up the options for pagination, including the populate option if provided
+    const page = options.page ? parseInt(options.page, 10) : 1;
+    const limit = options.limit ? parseInt(options.limit, 10) : 10;
+
+    const data = await Sales.aggregate([
+      {
+        $match: {
+          $and: [combinedQuery, { status: "completed" }],
+        },
+      }, // Apply the combined query as a match stage
+      {
+        $unwind: "$salesItems"
+      },
+      {
+        $lookup: {
+          from: "customers",
+          localField: "customer",
+          foreignField: "_id",
+          as: "customersData"
+        }
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "salesItems.productId",
+          foreignField: "_id",
+          as: "productsData"
+        }
+      },
+      {
+        $lookup: {
+          from: "invoices",
+          localField: "_id",
+          foreignField: "sales",
+          as: "invoiceData"
+        }
+      },
+      {
+        $unwind: "$productsData"
+      },
+      {
+        $unwind: "$customersData"
+      },
+      {
+        $unwind: "$invoiceData"
+      },
+      // {
+      //   $group: {
+      //     _id: "$_id",
+      //     supplierId: { $first: "$supplierId" },
+      //     purchaseDate: { $first: "$purchaseDate" },
+      //     reference: { $first: "$reference" },
+      //     expectedDate: { $first: "$expectedDate" },
+      //     orderStatus: { $first: "$orderStatus" },
+      //     paymentStatus: { $first: "$paymentStatus" },
+      //     billingAddress: { $first: "$billingAddress" },
+      //     shippingAddress: { $first: "$shippingAddress" },
+      //     totalAmount: { $first: "$totalAmount" },
+      //     taxInformation: { $first: "$taxInformation" },
+      //     invoiceId: { $first: "$invoiceId" },
+      //     items: {
+      //       $push: {
+      //         productId: "$items.productId",
+      //         quantity: "$items.quantity",
+      //         cost: "$items.cost",
+      //         total: "$items.total",
+      //         productDetails: "$productsData"
+      //       }
+      //     },
+      //     supplierDetails: { $first: "$supplierData" }
+      //   }
+      // },
+      // {
+      //   $project: {
+      //     _id: 1,
+      //     supplierId: 1,
+      //     purchaseDate: 1,
+      //     reference: 1,
+      //     expectedDate: 1,
+      //     orderStatus: 1,
+      //     paymentStatus: 1,
+      //     billingAddress: 1,
+      //     shippingAddress: 1,
+      //     totalAmount: 1,
+      //     taxInformation: 1,
+      //     invoiceId: 1,
+      //     items: 1,
+      //     supplierDetails: 1
+      //   }
+      // },
+      {$sort:{createdAt:-1}},
+      { $skip: (page - 1) * limit },
+      { $limit: limit }
+    ]);
+
+    const totalDocs = await Sales.countDocuments(combinedQuery);
+
+    return res.status(200).json({
+      data: {
+        docs: data,
+        totalDocs,
+        totalPages: Math.ceil(totalDocs / limit),
+        currentPage: page,
+      },
+      status: true
+    });
+  }else{
+    const { options = {}, query = {}, search = {} } = req.query;
+
+    // Construct search criteria if search keyword and fields are provided
+    const { keyword, fields = [] } = search;
+    let searchCriteria = {};
+
+    if (keyword && fields.length) {
+      const searchFields = Array.isArray(fields) ? fields : [fields];
+      searchCriteria = {
+        $or: searchFields.map((field) => ({
+          [field]: { $regex: keyword, $options: "i" },
+        })),
+      };
+    }
+
+    // Merge the search criteria with the provided query
+    const combinedQuery = { ...query, ...searchCriteria };
+
+    // Set up the options for pagination, including the populate option if provided
+    const page = options.page ? parseInt(options.page, 10) : 1;
+    const limit = options.limit ? parseInt(options.limit, 10) : 10;
+
+    const data = await Sales.aggregate([
+      {
+        $match: {
+          $and: [
+            combinedQuery,
+            { status: "completed" },
+            {
+              saleDate: {
+                $gte: new Date(req.params.startDate),
+                $lte: new Date(req.params.endDate),
+              },
+            },
+          ],
+        },
+      },
+      // Apply the combined query as a match stage
+      {
+        $unwind: "$salesItems"
+      },
+      
+      {
+        $lookup: {
+          from: "customers",
+          localField: "customer",
+          foreignField: "_id",
+          as: "customersData"
+        }
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "salesItems.productId",
+          foreignField: "_id",
+          as: "productsData"
+        }
+      },
+      {
+        $lookup: {
+          from: "invoices",
+          localField: "_id",
+          foreignField: "sales",
+          as: "invoiceData"
+        }
+      },
+      {
+        $unwind: "$productsData"
+      },
+      {
+        $unwind: "$customersData"
+      },
+      {
+        $unwind: "$invoiceData"
+      },
+      // {
+      //   $group: {
+      //     _id: "$_id",
+      //     supplierId: { $first: "$supplierId" },
+      //     purchaseDate: { $first: "$purchaseDate" },
+      //     reference: { $first: "$reference" },
+      //     expectedDate: { $first: "$expectedDate" },
+      //     orderStatus: { $first: "$orderStatus" },
+      //     paymentStatus: { $first: "$paymentStatus" },
+      //     billingAddress: { $first: "$billingAddress" },
+      //     shippingAddress: { $first: "$shippingAddress" },
+      //     totalAmount: { $first: "$totalAmount" },
+      //     taxInformation: { $first: "$taxInformation" },
+      //     invoiceId: { $first: "$invoiceId" },
+      //     items: {
+      //       $push: {
+      //         productId: "$items.productId",
+      //         quantity: "$items.quantity",
+      //         cost: "$items.cost",
+      //         total: "$items.total",
+      //         productDetails: "$productsData"
+      //       }
+      //     },
+      //     supplierDetails: { $first: "$supplierData" }
+      //   }
+      // },
+      // {
+      //   $project: {
+      //     _id: 1,
+      //     supplierId: 1,
+      //     purchaseDate: 1,
+      //     reference: 1,
+      //     expectedDate: 1,
+      //     orderStatus: 1,
+      //     paymentStatus: 1,
+      //     billingAddress: 1,
+      //     shippingAddress: 1,
+      //     totalAmount: 1,
+      //     taxInformation: 1,
+      //     invoiceId: 1,
+      //     items: 1,
+      //     supplierDetails: 1
+      //   }
+      // },
+      {$sort:{createdAt:-1}},
+      { $skip: (page - 1) * limit },
+      { $limit: limit }
+    ]);
+
+    const totalDocs = await Sales.countDocuments(combinedQuery);
+
+    return res.status(200).json({
+      data: {
+        docs: data,
+        totalDocs,
+        totalPages: Math.ceil(totalDocs / limit),
+        currentPage: page,
+      },
+      status: true
+    });
+  }
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
+  }
+};
 //creating sales document
 export const createSales = async (req, res) => {
   const session = await mongoose.startSession();
