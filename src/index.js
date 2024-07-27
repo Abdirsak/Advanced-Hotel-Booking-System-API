@@ -23,6 +23,7 @@ import invoiceRoutes from "./invoices/route.js";
 import paymentRoutes from "./payments/route.js";
 import receiptRoutes from "./receipts/route.js";
 import loanRoutes from "./loan/route.js";
+import settingsRouter from "./settings/route.js";
 
 dotenv.config();
 
@@ -67,6 +68,7 @@ app.use("/api/invoices", invoiceRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/receipts", receiptRoutes);
 app.use("/api/loans", loanRoutes);
+app.use("/api/settings", settingsRouter);
 
 app.use("/*", (req, res) => {
   res.status(404).json({ status: false, message: "Incorrect URL Destination" });
