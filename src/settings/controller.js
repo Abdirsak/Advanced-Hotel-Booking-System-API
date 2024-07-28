@@ -30,3 +30,12 @@ export const upsertSetting = async (req, res) => {
     res.status(500).json({ error: "Failed to save setting" });
   }
 };
+
+export const getCompanyProfile = async (req, res) => {
+  try {
+    let setting = await Setting.findOne();
+    res.status(200).json(setting?.companyInfo);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to Fetch setting" });
+  }
+};
