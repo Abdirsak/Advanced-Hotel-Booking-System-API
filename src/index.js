@@ -24,6 +24,8 @@ import paymentRoutes from "./payments/route.js";
 import receiptRoutes from "./receipts/route.js";
 import loanRoutes from "./loan/route.js";
 import settingsRouter from "./settings/route.js";
+import fs  from "fs";
+import path  from "path";
 
 dotenv.config();
 
@@ -70,6 +72,24 @@ app.use("/api/receipts", receiptRoutes);
 app.use("/api/loans", loanRoutes);
 app.use("/api/settings", settingsRouter);
 
+import { fileURLToPath } from 'url';
+
+// Convert `import.meta.url` to `__dirname`
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Use `path.resolve` to ensure the path is correctly resolved
+const filePath = path.resolve(__dirname, 'D:/inventory management system/inv-ms-api/src/logo/logo.png');
+
+fs.readFile(filePath, (err, data) => {
+  if (err) {
+    console.error("Error reading file:", err);
+    return;
+  }
+  const base64String = `data:image/png;base64,${data.toString('base64')}`;
+  // console.log(base64String);
+});
+// console.log(base64String);
 app.use("/*", (req, res) => {
   res.status(404).json({ status: false, message: "Incorrect URL Destination" });
 });

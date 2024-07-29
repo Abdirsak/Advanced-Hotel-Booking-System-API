@@ -126,6 +126,7 @@ export const getSales = async(req,res)=>{
 // sales loss or profit report
 export const getLosOrProfitSales = async(req,res)=>{
   try {
+    // console.log(req.startDate," and ", req.params.endData)
     if(!req.params.startDate && !req.params.endDate){
     const { options = {}, query = {}, search = {} } = req.query;
 
