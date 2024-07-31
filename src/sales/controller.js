@@ -742,15 +742,19 @@ export const createSales = async (req, res) => {
 
     await sale.save({ session });
 
+    const lastInvoice = await Invoice.findOne({}).sort({createdAt:-1});
+    // const invoiceNo = lastInvoice.invoiceNo += 1 
     // Generate invoice
     const invoice = new Invoice({
       sales: sale._id,
+      customer,
       invoiceDate: new Date(),
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       totalAmount: finalAmount,
       paidAmount: paidBalance,
       reference:reference,
-      status: 'unpaid',
+      invoiceNo:req.body.invoiceNo,
+      status: balance == 0? "paid" :'unpaid',
     });
 
     await invoice.save({ session });

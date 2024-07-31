@@ -10,9 +10,18 @@ const InvoiceSchema = new Schema({
     ref: "Sales",
     required: true,
   },
+  customer: {
+    type: Schema.Types.ObjectId,
+    ref: "Customer",
+    required: true,
+  },
   invoiceDate: {
     type: Date,
     required: true,
+  },
+  invoiceNo: {
+    type: Number,
+    required: false,
   },
   dueDate: {
     type: Date,
