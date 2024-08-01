@@ -672,7 +672,7 @@ export const createSales = async (req, res) => {
       return res.status(400).json({ status: false, errors: errors.array() });
     }
 
-    const { customer, saleDate, salesItems, status, discount,paidBalance,totalAmount,reference } = req.body;
+    const { customer, saleDate, salesItems, status, discount,paidBalance,totalAmount,reference,createdBy,branch } = req.body;
 
     const customerInfo = await Customer.findById(customer).session(session);
     
@@ -716,14 +716,16 @@ export const createSales = async (req, res) => {
       // totalAmount += itemTotal;
 
       // Reduce the stock
-      // product.quantity -= quantity;
-      // await product.save({ session });
-      await Product.findByIdAndUpdate(productId, { $inc: { quantity: -quantity } }, { session });
+      product.quantity -= quantity;
+      
+      await product.save({ session });
+
+      // await Product.findByIdAndUpdate(productId, { $inc: { quantity: - quantity } }, { session });
     }
 
     // Apply discount if provided
     const finalAmount = totalAmount - discount 
-    const balance = totalAmount - paidBalance - discount
+    const balance = totalAmount - parseFloat(paidBalance) - discount
     if (finalAmount < 0) {
       await session.abortTransaction();
       session.endSession();
@@ -733,10 +735,12 @@ export const createSales = async (req, res) => {
     const sale = new Sales({
       customer,
       saleDate,
-      totalAmount: paidBalance,
+      totalAmount: parseFloat(paidBalance),
       discount: discount || 0,
       salesItems,
-      status,
+      status:balance == 0? "completed" :'unpaid',
+      branch,
+      createdBy,
       balance
     });
 
@@ -751,7 +755,7 @@ export const createSales = async (req, res) => {
       invoiceDate: new Date(),
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       totalAmount: finalAmount,
-      paidAmount: paidBalance,
+      paidAmount: parseFloat(paidBalance),
       reference:reference,
       invoiceNo:req.body.invoiceNo,
       status: balance == 0? "paid" :'unpaid',

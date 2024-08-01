@@ -1,8 +1,9 @@
 import { validationResult } from "express-validator";
 import User from "./model.js";
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import jwt from "jsonwebtoken";
 import { getAll } from "../utils/query.js";
+import Employee from "../employees/model.js";
 
 // Get users : GET /users
 // export const getUsers = getAll(User);
@@ -94,6 +95,11 @@ export const Login = async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
 
+    const emp = await Employee.findOne({user:new mongoose.Types.ObjectId(user._id)})
+
+    
+    let branch = emp.branch
+    // console.log(branch)
     console.log("username is :", username);
 
     if (!user || !(await user.isCorrectPassword(password))) {
@@ -103,10 +109,22 @@ export const Login = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRE,
     });
+
+    const data = {
+      _id: user._id,
+      username: user.username,
+      fullName: user.fullName,
+      status: user.status,
+      role: user.role,
+      lastLogin: user.lastLogin,
+      departmentId:user.departmentId,
+      branch
+    }
+    
     res.json({
       status: true,
       message: "User Logged in successfully",
-      data: user,
+      data,
       token: token,
     });
   } catch (error) {

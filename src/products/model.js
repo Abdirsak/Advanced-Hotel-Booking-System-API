@@ -13,7 +13,7 @@ const ProductSchema = new Schema(
 
     description: {
       type: String,
-      required: true,
+      required: false,
     },
     category: {
       type: Schema.Types.ObjectId,
@@ -21,15 +21,15 @@ const ProductSchema = new Schema(
     },
     brand: {
       type: String,
-      required: true,
+      required: false,
     },
     price: {
       type: Number,
-      required: true,
+      required: false,
     },
     cost: {
       type: Number,
-      required: true,
+      required: false,
     },
     expireDate: {
       type: Date,
@@ -37,7 +37,7 @@ const ProductSchema = new Schema(
     },
     quantity: {
       type: Number,
-      required: true,
+      required: false,
     },
     sku: String,
     reorder_level: Number,
