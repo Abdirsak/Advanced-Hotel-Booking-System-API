@@ -718,7 +718,7 @@ export const createSales = async (req, res) => {
       // Reduce the stock
       // product.quantity -= quantity;
       // await product.save({ session });
-      await Product.findByIdAndUpdate(productId, { $inc: { quantity: quantity } }, { session });
+      await Product.findByIdAndUpdate(productId, { $inc: { quantity: -quantity } }, { session });
     }
 
     // Apply discount if provided

@@ -135,7 +135,7 @@ export const createPurchase = async (req, res) => {
   try {
     const { errors } = validationResult(req);
     if (errors.length) throw new Error(errors[0]?.msg);
-    const { supplierId, purchaseDate, expectedDate, orderStatus, paymentStatus, billingAddress, shippingAddress, items, taxInformation, invoiceId,reference } = req.body;
+    const { supplierId, purchaseDate, expectedDate, orderStatus, paymentStatus, billingAddress, shippingAddress, items, taxInformation, invoiceId,reference,branch } = req.body;
 
     // Validate items
     if (!items || items.length === 0) {
@@ -186,7 +186,8 @@ export const createPurchase = async (req, res) => {
       totalAmount,
       taxInformation,
       invoiceId,
-      reference
+      reference,
+      branch
     });
 
     // Save the purchase document

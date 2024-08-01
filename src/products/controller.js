@@ -46,6 +46,7 @@ export const getSingleProduct = getSingle(Product);
 
 export const createProduct = async (req, res) => {
   try {
+    console.log(req.user)
     const { errors } = validationResult(req);
     if (errors.length) throw new Error(errors[0]?.msg);
 
