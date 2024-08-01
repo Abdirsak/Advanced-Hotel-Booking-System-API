@@ -69,6 +69,10 @@ const PurchaseSchema = new Schema(
       type: String,
       required: false,
     },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     timestamps: true,

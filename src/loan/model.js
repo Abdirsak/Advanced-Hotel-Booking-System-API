@@ -50,6 +50,15 @@ const LoanSchema = new Schema(
       default:"Pending",
       enum: ["Pending", "Accepted","Rejected"],
     },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    branch: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+      default: null,
+    }
   },
   {
     timestamps: true,
