@@ -204,3 +204,10 @@ export const deleteInvoice = async (req, res) => {
     res.status(500).json({ status: false, message: err.message });
   }
 };
+
+
+export  const getLastInvoiceNo = async (req,res)=>{
+  const info = await Invoice.findOne({}).sort({invoiceNo:-1});
+  const lastInvoice = info?.invoiceNo;
+  return res.status(200).json(lastInvoice)
+}

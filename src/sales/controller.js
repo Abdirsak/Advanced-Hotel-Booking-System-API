@@ -738,7 +738,7 @@ export const createSales = async (req, res) => {
       totalAmount: parseFloat(paidBalance),
       discount: discount || 0,
       salesItems,
-      status:balance == 0? "completed" :'unpaid',
+      status:balance == 0? "completed" :'pending',
       branch,
       createdBy,
       balance
