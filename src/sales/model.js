@@ -35,7 +35,8 @@ const salesSchema = new Schema({
       },
     quantity:  {type:Number},
     price: {type: Number},
-    total: {type: Number}
+    total: {type: Number},
+    itemDiscount: {type: Number}
 
     }
   ],

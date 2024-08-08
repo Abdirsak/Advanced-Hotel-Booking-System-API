@@ -660,10 +660,127 @@ export const getSalesLedger = async(req,res)=>{
   }
 };
 //creating sales document
+// export const createSales = async (req, res) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+  
+//   try {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return res.status(400).json({ status: false, errors: errors.array() });
+//     }
+
+//     const { customer, saleDate, salesItems, status, discount,paidBalance,totalAmount,reference,createdBy,branch } = req.body;
+
+//     const customerInfo = await Customer.findById(customer).session(session);
+    
+//     // Basic validations
+//     if (!customerInfo) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return res.status(400).json({ status: false, message: 'Customer not found' });
+//     }
+//     if (!salesItems || salesItems.length === 0) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return res.status(400).json({ status: false, message: 'Sales items are required' });
+//     }
+
+//     // let totalAmount = 0;
+
+//     for (const item of salesItems) {
+//       const { productId, quantity } = item;   
+//       if (quantity <= 0) {
+//         await session.abortTransaction();
+//         session.endSession();
+//         return res.status(400).json({ status: false, message: 'Quantity must be greater than zero for each item' });
+//       }
+
+//       const product = await Product.findById(productId).session(session);
+//       if (!product) {
+//         await session.abortTransaction();
+//         session.endSession();
+//         return res.status(404).json({ status: false, message: `Product not found for ID: ${productId}` });
+//       }
+
+//       if (product.quantity < quantity) {
+//         await session.abortTransaction();
+//         session.endSession();
+//         return res.status(400).json({ status: false, message: `Insufficient stock for product ID: ${productId}` });
+//       }
+
+//       // const itemTotal = quantity * product?.price;
+//       // item.total = itemTotal;
+//       // totalAmount += itemTotal;
+
+//       // Reduce the stock
+//       product.quantity -= quantity;
+      
+//       await product.save({ session });
+
+//       // await Product.findByIdAndUpdate(productId, { $inc: { quantity: - quantity } }, { session });
+//     }
+
+//     // Apply discount if provided
+//     const finalAmount = totalAmount - discount 
+//     const balance = totalAmount - parseFloat(paidBalance) - discount
+//     if (finalAmount < 0) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return res.status(400).json({ status: false, message: 'Discount cannot exceed total amount' });
+//     }
+
+//     const sale = new Sales({
+//       customer,
+//       saleDate,
+//       totalAmount: parseFloat(paidBalance),
+//       discount: discount || 0,
+//       salesItems,
+//       status:balance == 0? "completed" :'pending',
+//       branch,
+//       createdBy,
+//       balance
+//     });
+
+//     await sale.save({ session });
+
+//     const lastInvoice = await Invoice.findOne({}).sort({createdAt:-1});
+//     // const invoiceNo = lastInvoice.invoiceNo += 1 
+//     // Generate invoice
+//     const invoice = new Invoice({
+//       sales: sale._id,
+//       customer,
+//       invoiceDate: new Date(),
+//       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+//       totalAmount: finalAmount,
+//       paidAmount: parseFloat(paidBalance),
+//       reference:reference,
+//       invoiceNo:req.body.invoiceNo,
+//       status: balance == 0? "paid" :'unpaid',
+//     });
+
+//     await invoice.save({ session });
+
+//     // Associate the invoice with the sale
+//     sale.invoice = invoice._id;
+//     await sale.save({ session });
+
+//     await session.commitTransaction();
+//     session.endSession();
+
+//     return res.status(201).json({ status: true, message: 'Sale and invoice created successfully', sale, invoice });
+//   } catch (err) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     return res.status(400).json({ status: false, message: err.message });
+//   }
+// };
 export const createSales = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
-  
+
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -672,7 +789,7 @@ export const createSales = async (req, res) => {
       return res.status(400).json({ status: false, errors: errors.array() });
     }
 
-    const { customer, saleDate, salesItems, status, discount,paidBalance,totalAmount,reference,createdBy,branch } = req.body;
+    const { customer, saleDate, salesItems, status, discount, paidBalance, totalAmount, reference, createdBy, branch } = req.body;
 
     const customerInfo = await Customer.findById(customer).session(session);
     
@@ -688,10 +805,12 @@ export const createSales = async (req, res) => {
       return res.status(400).json({ status: false, message: 'Sales items are required' });
     }
 
-    // let totalAmount = 0;
+    let calculatedTotalAmount = 0;
+    let totalDiscount = 0;
 
     for (const item of salesItems) {
-      const { productId, quantity } = item;   
+      const { productId, quantity, itemDiscount } = item;
+
       if (quantity <= 0) {
         await session.abortTransaction();
         session.endSession();
@@ -711,21 +830,19 @@ export const createSales = async (req, res) => {
         return res.status(400).json({ status: false, message: `Insufficient stock for product ID: ${productId}` });
       }
 
-      // const itemTotal = quantity * product?.price;
-      // item.total = itemTotal;
-      // totalAmount += itemTotal;
+      const itemTotal = quantity * product.price - (itemDiscount || 0);
+      item.total = itemTotal;
+      calculatedTotalAmount += itemTotal;
+      totalDiscount += itemDiscount || 0;
 
       // Reduce the stock
       product.quantity -= quantity;
-      
       await product.save({ session });
-
-      // await Product.findByIdAndUpdate(productId, { $inc: { quantity: - quantity } }, { session });
     }
 
-    // Apply discount if provided
-    const finalAmount = totalAmount - discount 
-    const balance = totalAmount - parseFloat(paidBalance) - discount
+    const finalAmount = calculatedTotalAmount - (discount || 0);
+    const balance = totalAmount - parseFloat(paidBalance || 0);
+
     if (finalAmount < 0) {
       await session.abortTransaction();
       session.endSession();
@@ -735,10 +852,10 @@ export const createSales = async (req, res) => {
     const sale = new Sales({
       customer,
       saleDate,
-      totalAmount: parseFloat(paidBalance),
-      discount: discount || 0,
+      totalAmount: totalAmount,
+      discount: totalDiscount,
       salesItems,
-      status:balance == 0? "completed" :'pending',
+      status: balance === 0 ? "completed" : 'pending',
       branch,
       createdBy,
       balance
@@ -746,19 +863,19 @@ export const createSales = async (req, res) => {
 
     await sale.save({ session });
 
-    const lastInvoice = await Invoice.findOne({}).sort({createdAt:-1});
-    // const invoiceNo = lastInvoice.invoiceNo += 1 
-    // Generate invoice
+    const lastInvoice = await Invoice.findOne({}).sort({ createdAt: -1 });
+    const invoiceNo = lastInvoice ? lastInvoice.invoiceNo + 1 : 1;
+
     const invoice = new Invoice({
       sales: sale._id,
       customer,
       invoiceDate: new Date(),
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-      totalAmount: finalAmount,
-      paidAmount: parseFloat(paidBalance),
-      reference:reference,
-      invoiceNo:req.body.invoiceNo,
-      status: balance == 0? "paid" :'unpaid',
+      totalAmount: totalAmount,
+      paidAmount: parseFloat(paidBalance || 0),
+      reference: reference,
+      invoiceNo: invoiceNo,
+      status: balance === 0 ? "paid" : 'unpaid',
     });
 
     await invoice.save({ session });
