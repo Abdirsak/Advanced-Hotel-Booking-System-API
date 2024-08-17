@@ -55,27 +55,27 @@ export const TotalAmountReceived = async (req, res) => {
 // total products
 export const TotalProducts = async(req,res)=>{
     const total = await Products.find({}).count();
-    return res.status(200).json(total)
+    return res.status(200).json({total})
 }
 // total customers
 export const TotalCustomers = async(req,res)=>{
     const total = await Customer.find({}).count();
-    return res.status(200).json(total)
+    return res.status(200).json({total})
 }
 // total suppliers
 export const TotalSuppliers = async(req,res)=>{
     const total = await Supplier.find({}).count();
-    return res.status(200).json(total)
+    return res.status(200).json({total})
 }
 // total employees
 export const TotalEmployees = async(req,res)=>{
     const total = await Employees.find({}).count();
-    return res.status(200).json(total)
+    return res.status(200).json({total})
 }
 // total users
 export const TotalUsers = async(req,res)=>{
     const total = await User.find({}).count();
-    return res.status(200).json(total)
+    return res.status(200).json({total})
 }
 // total profit
 export const TotalProfit = async (req, res) => {
@@ -112,7 +112,7 @@ export const TotalProfit = async (req, res) => {
   
       const total = result.length > 0 ? result[0].totalProfit : 0;
   
-      return res.status(200).json({ totalProfit: total });
+      return res.status(200).json({  total });
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
@@ -156,12 +156,12 @@ export const totalExpenses = async(req,res)=>{
         ];
     
         // Merge the aggregated results into the full year
-        const result = monthsArray.map(monthData => {
+        const total = monthsArray.map(monthData => {
           const match = expenses.find(exp => exp._id === monthData.month);
           return match ? { ...monthData, totalExpense: match.totalExpense } : monthData;
         });
     
-        return res.status(200).json(result);
+        return res.status(200).json({total});
       } catch (error) {
         return res.status(500).json({ error: error.message });
       }
