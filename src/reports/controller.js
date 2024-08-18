@@ -166,3 +166,45 @@ export const totalExpenses = async(req,res)=>{
         return res.status(500).json({ error: error.message });
       }
 }
+
+
+export const getLastFiveInvoices = async (req, res) => {
+  try {
+    
+    const data = await  Invoice.aggregate([
+      // Apply the combined query as a match stage
+      {
+        $lookup: {
+          from: "sales",
+          localField: "sales",
+          foreignField: "_id",
+          as: "salesData"
+        }
+      },
+      {
+        $lookup: {
+          from: "customers",
+          localField: "salesData.customer",
+          foreignField: "_id",
+          as: "customerData"
+        }
+      },
+      {$unwind: "$salesData"},
+      {$unwind: "$customerData"},
+   
+      {$limit:5},
+      {$sort:{createdAt:-1}}
+    ]);
+
+    
+
+    return res.status(200).json({
+      data: {
+        docs: data,
+      },
+      status: true
+    });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
+  }
+};

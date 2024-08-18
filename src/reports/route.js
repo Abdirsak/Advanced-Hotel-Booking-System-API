@@ -8,7 +8,9 @@ import {
   TotalSuppliers,
   TotalUsers,
   TotalEmployees,
-  TotalCustomers
+  TotalCustomers,
+getLastFiveInvoices
+  
 } from "./controller.js";
 
 const router = express.Router();
@@ -22,6 +24,7 @@ router.get("/customers", TotalCustomers);
 router.get("/employees", TotalEmployees);
 router.get("/users", TotalUsers);
 router.get("/suppliers", TotalSuppliers);
+router.get("/invoices", getLastFiveInvoices);
 
 
 export default router;
