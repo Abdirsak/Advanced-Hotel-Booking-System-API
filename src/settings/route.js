@@ -6,6 +6,6 @@ const router = express.Router();
 
 // Route to upsert Setting with file upload middleware
 router.post("/company-profile", upload.single("logo"), upsertSetting);
-router.get("/company-profile", upload.single("logo"), getCompanyProfile);
+router.get("/company-profile", getCompanyProfile);
 
 export default router;
