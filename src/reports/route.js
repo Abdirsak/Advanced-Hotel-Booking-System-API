@@ -1,6 +1,6 @@
 import express from "express";
 import {
-    TotalAmountReceived,
+  TotalAmountReceived,
   TotalProducts,
   TotalReceivables,
   TotalProfit,
@@ -9,8 +9,8 @@ import {
   TotalUsers,
   TotalEmployees,
   TotalCustomers,
-getLastFiveInvoices
-  
+  getLastFiveInvoices,
+  getEmployeeSalesReport,
 } from "./controller.js";
 
 const router = express.Router();
@@ -25,6 +25,6 @@ router.get("/employees", TotalEmployees);
 router.get("/users", TotalUsers);
 router.get("/suppliers", TotalSuppliers);
 router.get("/invoices", getLastFiveInvoices);
-
+router.get("/employee-sales", getEmployeeSalesReport); // Add the new route here
 
 export default router;
