@@ -2,10 +2,6 @@ import jwt from "jsonwebtoken";
 import User from "./model.js"; // Adjust the import path to your actual User model
 
 export const AuthMiddleware = async (req, res, next) => {
-  console.log("=============");
-  console.log("here we go");
-  console.log("=============");
-
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Please Authenticate" });
