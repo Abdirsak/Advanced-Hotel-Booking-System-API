@@ -18,7 +18,7 @@ const PurchaseSchema = new Schema(
       type: Date,
       required: true,
     },
-    reference:{
+    reference: {
       type: String,
       required: true,
     },
@@ -42,20 +42,20 @@ const PurchaseSchema = new Schema(
     },
     shippingAddress: {
       type: String,
-      required: true,  
+      required: true,
     },
 
     items: [
       {
-      productId: {
-        type: Schema.Types.ObjectId,
-        ref: "Product",
-        required: true,
+        productId: {
+          type: Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        quantity: { type: Number },
+        cost: { type: Number },
+        total: { type: Number },
       },
-      quantity: {type: Number},
-      cost: {type: Number},
-      total: {type: Number},
-    }
     ],
     totalAmount: {
       type: Number,
