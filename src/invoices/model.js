@@ -40,6 +40,11 @@ const InvoiceSchema = new Schema({
     required: true,
     enum: ["unpaid", "paid", "overdue"],
   },
+  branch: {
+    type: Schema.Types.ObjectId,
+    ref: "Branch",
+    default: null,
+  },
 });
 
 InvoiceSchema.plugin(MongoosePaginate);

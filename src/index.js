@@ -28,6 +28,7 @@ import menusRouter from "./menus/route.js";
 import reportRoutes from "./reports/route.js";
 import fs from "fs";
 import path from "path";
+import { AuthMiddleware } from "./users/middlewares.js";
 
 dotenv.config();
 
@@ -67,14 +68,14 @@ app.use("/api/expenses", expensesRoutes);
 app.use("/api/expenseCategories", expenseCategoryRoutes);
 app.use("/api/productCategories", productCategoryRoutes);
 app.use("/api/inventoryAdjustments", inventoryAdjustmentsRoutes);
-app.use("/api/sales", salesRoutes);
+app.use("/api/sales", AuthMiddleware, salesRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/receipts", receiptRoutes);
 app.use("/api/loans", loanRoutes);
 app.use("/api/settings", settingsRouter);
 app.use("/api/menus", menusRouter);
-app.use("/api/reports", reportRoutes);
+app.use("/api/reports", AuthMiddleware, reportRoutes);
 
 // import { fileURLToPath } from "url";
 
