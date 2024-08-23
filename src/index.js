@@ -57,24 +57,28 @@ app.get("/", (req, res) => {
 });
 
 // * REGISTER ROTES
-app.use("/api/branches", branchRouter);
-app.use("/api/products", productsRoutes);
-app.use("/api/users", userRouter);
-app.use("/api/employees", employeeRouter);
-app.use("/api/customers", customerRouter);
-app.use("/api/purchases", purchasesRoutes);
-app.use("/api/supplier", supplierRoutes);
-app.use("/api/expenses", expensesRoutes);
-app.use("/api/expenseCategories", expenseCategoryRoutes);
-app.use("/api/productCategories", productCategoryRoutes);
-app.use("/api/inventoryAdjustments", inventoryAdjustmentsRoutes);
+app.use("/api/branches", AuthMiddleware, branchRouter);
+app.use("/api/products", AuthMiddleware, productsRoutes);
+app.use("/api/users", AuthMiddleware, userRouter);
+app.use("/api/employees", AuthMiddleware, employeeRouter);
+app.use("/api/customers", AuthMiddleware, customerRouter);
+app.use("/api/purchases", AuthMiddleware, purchasesRoutes);
+app.use("/api/supplier", AuthMiddleware, supplierRoutes);
+app.use("/api/expenses", AuthMiddleware, expensesRoutes);
+app.use("/api/expenseCategories", AuthMiddleware, expenseCategoryRoutes);
+app.use("/api/productCategories", AuthMiddleware, productCategoryRoutes);
+app.use(
+  "/api/inventoryAdjustments",
+  AuthMiddleware,
+  inventoryAdjustmentsRoutes
+);
 app.use("/api/sales", AuthMiddleware, salesRoutes);
-app.use("/api/invoices", invoiceRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/receipts", receiptRoutes);
-app.use("/api/loans", loanRoutes);
-app.use("/api/settings", settingsRouter);
-app.use("/api/menus", menusRouter);
+app.use("/api/invoices", AuthMiddleware, invoiceRoutes);
+app.use("/api/payments", AuthMiddleware, paymentRoutes);
+app.use("/api/receipts", AuthMiddleware, receiptRoutes);
+app.use("/api/loans", AuthMiddleware, loanRoutes);
+app.use("/api/settings", AuthMiddleware, settingsRouter);
+app.use("/api/menus", AuthMiddleware, menusRouter);
 app.use("/api/reports", AuthMiddleware, reportRoutes);
 
 // import { fileURLToPath } from "url";
