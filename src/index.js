@@ -26,6 +26,7 @@ import loanRoutes from "./loan/route.js";
 import settingsRouter from "./settings/route.js";
 import menusRouter from "./menus/route.js";
 import reportRoutes from "./reports/route.js";
+import rolesRoutes from "./roles/route.js";
 import fs from "fs";
 import path from "path";
 import { AuthMiddleware } from "./users/middlewares.js";
@@ -79,7 +80,16 @@ app.use("/api/receipts", AuthMiddleware, receiptRoutes);
 app.use("/api/loans", AuthMiddleware, loanRoutes);
 app.use("/api/settings", AuthMiddleware, settingsRouter);
 app.use("/api/menus", AuthMiddleware, menusRouter);
+app.use("/api/invoices", AuthMiddleware, invoiceRoutes);
+app.use("/api/payments", AuthMiddleware, paymentRoutes);
+app.use("/api/receipts", AuthMiddleware, receiptRoutes);
+app.use("/api/loans", AuthMiddleware, loanRoutes);
+app.use("/api/settings", AuthMiddleware, settingsRouter);
+app.use("/api/menus", AuthMiddleware, menusRouter);
+
 app.use("/api/reports", AuthMiddleware, reportRoutes);
+
+app.use("/api/roles", AuthMiddleware, rolesRoutes);
 
 // import { fileURLToPath } from "url";
 
