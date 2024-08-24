@@ -23,14 +23,18 @@ export const getProducts = async (req, res) => {
     // Merge the search criteria with the provided query
     const combinedQuery = { ...query, ...searchCriteria };
 
+    if (req?.user?.branch) {
+      combinedQuery.branch = req?.user?.branch;
+    }
+
     // Set up the options for pagination, including the populate option if provided
     let paginationOptions = { ...options };
 
     // Adding population options
     paginationOptions.populate = [
-      { path: 'supplier' },
-      { path: 'category' },
-      { path: 'createdBy' },
+      { path: "supplier" },
+      { path: "category" },
+      { path: "createdBy" },
     ];
 
     // Execute the paginate function with the combined query and options
@@ -46,7 +50,7 @@ export const getSingleProduct = getSingle(Product);
 
 export const createProduct = async (req, res) => {
   try {
-    console.log(req.user)
+    console.log(req.user);
     const { errors } = validationResult(req);
     if (errors.length) throw new Error(errors[0]?.msg);
 

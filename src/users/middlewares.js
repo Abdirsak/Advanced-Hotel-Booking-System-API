@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "./model.js"; // Adjust the import path to your actual User model
+import Customer from "../customer/model.js";
+import Employee from "../employees/model.js";
 
 export const AuthMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -20,8 +22,12 @@ export const AuthMiddleware = async (req, res, next) => {
       return res.status(401).send({ error: "Invalid Credentials" });
     }
 
-    console.log(user);
     req.user = user;
+    const employee = await Employee.findOne({ user: user._id });
+    if (employee && employee?.branch) {
+      req.user.branch = employee?.branch;
+    }
+
     next();
   } catch (err) {
     if (err.name === "TokenExpiredError") {

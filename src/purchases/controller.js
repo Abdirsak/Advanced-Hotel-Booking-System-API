@@ -1,5 +1,5 @@
 import { validationResult } from "express-validator";
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 import Purchase from "./model.js";
 import Product from "../products/model.js";
 import { isValidObjectId } from "mongoose";
@@ -33,6 +33,10 @@ export const getPurchases = async (req, res) => {
     // Merge the search criteria with the provided query
     const combinedQuery = { ...query, ...searchCriteria };
 
+    if (req?.user?.branch) {
+      combinedQuery.branch = req?.user?.branch;
+    }
+
     // Set up the options for pagination, including the populate option if provided
     const page = options.page ? parseInt(options.page, 10) : 1;
     const limit = options.limit ? parseInt(options.limit, 10) : 10;
@@ -40,29 +44,29 @@ export const getPurchases = async (req, res) => {
     const data = await Purchase.aggregate([
       { $match: combinedQuery }, // Apply the combined query as a match stage
       {
-        $unwind: "$items"
+        $unwind: "$items",
       },
       {
         $lookup: {
           from: "suppliers",
           localField: "supplierId",
           foreignField: "_id",
-          as: "supplierData"
-        }
+          as: "supplierData",
+        },
       },
       {
         $lookup: {
           from: "products",
           localField: "items.productId",
           foreignField: "_id",
-          as: "productsData"
-        }
+          as: "productsData",
+        },
       },
       {
-        $unwind: "$productsData"
+        $unwind: "$productsData",
       },
       {
-        $unwind: "$supplierData"
+        $unwind: "$supplierData",
       },
       // {
       //   $group: {
@@ -109,7 +113,7 @@ export const getPurchases = async (req, res) => {
       //   }
       // },
       { $skip: (page - 1) * limit },
-      { $limit: limit }
+      { $limit: limit },
     ]);
 
     const totalDocs = await Purchase.countDocuments(combinedQuery);
@@ -121,7 +125,7 @@ export const getPurchases = async (req, res) => {
         totalPages: Math.ceil(totalDocs / limit),
         currentPage: page,
       },
-      status: true
+      status: true,
     });
   } catch (error) {
     return res.status(500).json({ status: false, message: error.message });
@@ -135,11 +139,24 @@ export const createPurchase = async (req, res) => {
   try {
     const { errors } = validationResult(req);
     if (errors.length) throw new Error(errors[0]?.msg);
-    const { supplierId, purchaseDate, expectedDate, orderStatus, paymentStatus, billingAddress, shippingAddress, items, taxInformation, invoiceId,reference,branch } = req.body;
+    const {
+      supplierId,
+      purchaseDate,
+      expectedDate,
+      orderStatus,
+      paymentStatus,
+      billingAddress,
+      shippingAddress,
+      items,
+      taxInformation,
+      invoiceId,
+      reference,
+      branch,
+    } = req.body;
 
     // Validate items
     if (!items || items.length === 0) {
-      throw new Error('Items are required for a purchase');
+      throw new Error("Items are required for a purchase");
     }
 
     let totalAmount = 0;
@@ -150,7 +167,7 @@ export const createPurchase = async (req, res) => {
 
       // Validate quantity
       if (quantity <= 0) {
-        throw new Error('Quantity must be greater than zero for each item');
+        throw new Error("Quantity must be greater than zero for each item");
       }
 
       // Validate product ID
@@ -163,7 +180,11 @@ export const createPurchase = async (req, res) => {
       // product.quantity += quantity;
       // await product.save({ session });
       // await Product.findByIdAndUpdate(productId,{$set:{quantity: }})
-      await Product.findByIdAndUpdate(productId, { $inc: { quantity: quantity } }, { session });
+      await Product.findByIdAndUpdate(
+        productId,
+        { $inc: { quantity: quantity } },
+        { session }
+      );
 
       // Calculate total for the item
       const itemTotal = quantity * cost;
@@ -187,7 +208,7 @@ export const createPurchase = async (req, res) => {
       taxInformation,
       invoiceId,
       reference,
-      branch
+      branch,
     });
 
     // Save the purchase document
@@ -196,7 +217,13 @@ export const createPurchase = async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
-    return res.status(201).json({ status: true, message: 'Purchase created successfully', purchase });
+    return res
+      .status(201)
+      .json({
+        status: true,
+        message: "Purchase created successfully",
+        purchase,
+      });
   } catch (err) {
     await session.abortTransaction();
     session.endSession();
@@ -273,12 +300,18 @@ export const updatePurchase = async (req, res) => {
       return res
         .status(400)
         .json({ status: false, message: "Invalid purchase id" });
-    const {  items, orderStatus, paymentStatus, billingAddress, shippingAddress } = req.body;
+    const {
+      items,
+      orderStatus,
+      paymentStatus,
+      billingAddress,
+      shippingAddress,
+    } = req.body;
 
     // Fetch the existing purchase
     const purchase = await Purchase.findById(id).session(session);
     if (!purchase) {
-      throw new Error('Purchase not found');
+      throw new Error("Purchase not found");
     }
 
     // Revert inventory changes from existing items
@@ -307,7 +340,7 @@ export const updatePurchase = async (req, res) => {
 
       // Validate quantity
       if (quantity <= 0) {
-        throw new Error('Quantity must be greater than zero for each item');
+        throw new Error("Quantity must be greater than zero for each item");
       }
 
       // Validate product ID
@@ -335,7 +368,13 @@ export const updatePurchase = async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
-    return res.status(200).json({ status: true, message: 'Purchase updated successfully', purchase });
+    return res
+      .status(200)
+      .json({
+        status: true,
+        message: "Purchase updated successfully",
+        purchase,
+      });
   } catch (err) {
     await session.abortTransaction();
     session.endSession();
@@ -355,7 +394,7 @@ export const deletePurchase = async (req, res) => {
     // Fetch the existing purchase
     const purchase = await Purchase.findById(id).session(session);
     if (!purchase) {
-      throw new Error('Purchase not found');
+      throw new Error("Purchase not found");
     }
 
     // Revert inventory changes from existing items
@@ -374,7 +413,9 @@ export const deletePurchase = async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
-    return res.status(200).json({ status: true, message: 'Purchase deleted successfully' });
+    return res
+      .status(200)
+      .json({ status: true, message: "Purchase deleted successfully" });
   } catch (err) {
     await session.abortTransaction();
     session.endSession();
