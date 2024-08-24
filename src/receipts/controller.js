@@ -27,50 +27,54 @@ export const getReceipts = async (req, res) => {
     // Merge the search criteria with the provided query
     const combinedQuery = { ...query, ...searchCriteria };
 
+    if (req?.user?.branch) {
+      combinedQuery.branch = req?.user?.branch;
+    }
+
     // Set up the options for pagination, including the populate option if provided
     const page = options.page ? parseInt(options.page, 10) : 1;
     const limit = options.limit ? parseInt(options.limit, 10) : 10;
 
     const data = await Receipt.aggregate([
       { $match: combinedQuery }, // Apply the combined query as a match stage
-      
+
       {
         $lookup: {
           from: "customers",
           localField: "customerId",
           foreignField: "_id",
-          as: "customerData"
-        }
+          as: "customerData",
+        },
       },
       {
         $lookup: {
           from: "invoices",
           localField: "invoiceId",
           foreignField: "_id",
-          as: "invoiceData"
-        }
+          as: "invoiceData",
+        },
       },
       {
         $lookup: {
           from: "sales",
           localField: "invoiceData.sales",
           foreignField: "_id",
-          as: "salesData"
-        }
+          as: "salesData",
+        },
       },
-     
+
       {
-        $unwind: "$customerData"
-      },
-      {
-        $unwind: "$invoiceData"
+        $unwind: "$customerData",
       },
       {
-        $unwind: "$salesData"
+        $unwind: "$invoiceData",
       },
-     
+      {
+        $unwind: "$salesData",
+      },
+
       { $skip: (page - 1) * limit },
-      { $limit: limit }
+      { $limit: limit },
     ]);
 
     const totalDocs = await Receipt.countDocuments(combinedQuery);
@@ -82,7 +86,7 @@ export const getReceipts = async (req, res) => {
         totalPages: Math.ceil(totalDocs / limit),
         currentPage: page,
       },
-      status: true
+      status: true,
     });
   } catch (error) {
     return res.status(500).json({ status: false, message: error.message });
@@ -114,9 +118,13 @@ export const updateReceipt = async (req, res) => {
         .status(400)
         .json({ status: false, message: "invalid supplier Id" });
 
-    const updatedReceipt = await Receipt.findOneAndUpdate({ _id: id }, req.body, {
-      new: true,
-    });
+    const updatedReceipt = await Receipt.findOneAndUpdate(
+      { _id: id },
+      req.body,
+      {
+        new: true,
+      }
+    );
 
     if (!updatedReceipt)
       return res
@@ -149,30 +157,31 @@ export const deleteReceipt = async (req, res) => {
         .status(400)
         .json({ status: false, message: "invalid Action, nothing to deleted" });
 
-        const invoice = await mongoose.model("Invoice").findById(deletedReceipt?.invoiceId);
-        const Sale = await mongoose.model("Sales").findById(invoice?.sales);
+    const invoice = await mongoose
+      .model("Invoice")
+      .findById(deletedReceipt?.invoiceId);
+    const Sale = await mongoose.model("Sales").findById(invoice?.sales);
 
-        if (!invoice) {
-          const err = new Error("Invoice not found");
-          return next(err);
-        }
-        invoice.paidAmount -= deletedReceipt.amount;
-        Sale.balance += deletedReceipt.amount;
-        // receipt.balance = Sale.balance;
-      
-       
-        // console.log("paid amount: ",Sale.balance)
-        // Update the status of the invoice based on the balance
-        if (Sale.balance <= 0) {
-          invoice.status = 'paid';
-          Sale.status = 'completed';
-        } else {
-          invoice.status = 'unpaid';
-          Sale.status = 'pending';
-        }
-      
-        await invoice.save();
-        await Sale.save();
+    if (!invoice) {
+      const err = new Error("Invoice not found");
+      return next(err);
+    }
+    invoice.paidAmount -= deletedReceipt.amount;
+    Sale.balance += deletedReceipt.amount;
+    // receipt.balance = Sale.balance;
+
+    // console.log("paid amount: ",Sale.balance)
+    // Update the status of the invoice based on the balance
+    if (Sale.balance <= 0) {
+      invoice.status = "paid";
+      Sale.status = "completed";
+    } else {
+      invoice.status = "unpaid";
+      Sale.status = "pending";
+    }
+
+    await invoice.save();
+    await Sale.save();
     res.status(201).send({
       status: true,
       data: deletedReceipt,
