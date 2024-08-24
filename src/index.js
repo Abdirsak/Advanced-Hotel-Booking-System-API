@@ -60,7 +60,7 @@ app.get("/", (req, res) => {
 // * REGISTER ROTES
 app.use("/api/branches", AuthMiddleware, branchRouter);
 app.use("/api/products", AuthMiddleware, productsRoutes);
-app.use("/api/users", AuthMiddleware, userRouter);
+app.use("/api/users", userRouter);
 app.use("/api/employees", AuthMiddleware, employeeRouter);
 app.use("/api/customers", AuthMiddleware, customerRouter);
 app.use("/api/purchases", AuthMiddleware, purchasesRoutes);
