@@ -7,6 +7,7 @@ import Supplier from "../supplier/model.js";
 import Products from "../products/model.js";
 import Employees from "../employees/model.js";
 import User from "../users/model.js";
+import Purchase from "../purchases/model.js";
 
 // total amount receivable
 export const TotalReceivables = async (req, res) => {
@@ -177,6 +178,79 @@ export const totalExpenses = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+export const getPurchaseReport = async (req, res) => {
+  try {
+    // Aggregation pipeline without date filtering
+    const report = await Purchase.aggregate([
+      {
+        $lookup: {
+          from: 'suppliers', // The name of the Supplier collection
+          localField: 'supplierId',
+          foreignField: '_id',
+          as: 'supplierData',
+        },
+      },
+      {
+        $unwind: {
+          path: '$supplierData',
+          preserveNullAndEmptyArrays: true, // Handle cases where supplier data might be missing
+        },
+      },
+      {
+        $group: {
+          _id: '$supplierId', // Group by supplierId
+          supplierName: { $first: '$supplierData.SupplierName' }, // Get the supplier's name
+          totalAmountSpent: { $sum: '$totalAmount' }, // Calculate the total amount spent
+          purchaseCount: { $sum: 1 }, // Count the number of purchases
+          purchases: {
+            $push: {
+              purchaseDate: '$purchaseDate',
+              reference: '$reference',
+              orderStatus: '$orderStatus',
+              paymentStatus: '$paymentStatus',
+              totalAmount: '$totalAmount',
+            },
+          },
+        },
+      },
+      {
+        $sort: { totalAmountSpent: -1 }, // Sort by total amount spent in descending order
+      },
+      {
+        $project: {
+          _id: 0, // Hide the default _id field
+          supplierId: '$_id', // Show supplier ID
+          supplierName: 1,
+          totalAmountSpent: 1,
+          purchaseCount: 1,
+          purchases: 1,
+        },
+      },
+    ]);
+
+    // Check if the report is empty and handle accordingly
+    if (report.length === 0) {
+      return res.status(404).json({
+        status: false,
+        message: 'No purchase records found.',
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: report,
+    });
+  } catch (error) {
+    console.error('Error fetching purchase report:', error);
+    return res.status(500).json({
+      status: false,
+      message: 'An error occurred while generating the purchase report.',
+      error: error.message,
+    });
+  }
+};
+
 
 export const getLastFiveInvoices = async (req, res) => {
   try {
