@@ -10,6 +10,7 @@ import User from "../users/model.js";
 
 // total amount receivable
 export const TotalReceivables = async (req, res) => {
+  console.log("User: ",req.user)
   try {
     const result = await Sales.aggregate([
       {
