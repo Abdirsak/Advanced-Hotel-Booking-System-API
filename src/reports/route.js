@@ -11,6 +11,7 @@ import {
   TotalCustomers,
   getLastFiveInvoices,
   getEmployeeSalesReport,
+  getPurchaseReport,
 } from "./controller.js";
 import { AuthMiddleware } from "../users/middlewares.js";
 
@@ -26,6 +27,7 @@ router.get("/employees",AuthMiddleware, TotalEmployees);
 router.get("/users",AuthMiddleware, TotalUsers);
 router.get("/suppliers",AuthMiddleware, TotalSuppliers);
 router.get("/invoices",AuthMiddleware, getLastFiveInvoices);
-router.get("/employee-sales",AuthMiddleware, getEmployeeSalesReport); // Add the new route here
+router.get("/employee-sales",AuthMiddleware, getEmployeeSalesReport);
+router.get("/purchase-report",AuthMiddleware, getPurchaseReport);
 
 export default router;

@@ -27,6 +27,11 @@ const PaymentSchema = new Schema(
       type: String,
       required: false,
     },
+    branch: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+      default: null,
+    },
   },
   {
     timestamps: true,

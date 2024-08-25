@@ -27,6 +27,10 @@ export const getAll = (Model) => async (req, res) => {
     // Merge the search criteria with the provided query
     const combinedQuery = { ...query, ...searchCriteria };
 
+    if (req?.user?.branch) {
+      combinedQuery.branch = req?.user?.branch;
+    }
+
     // Execute the paginate function with the combined query and options
     const data = await Model.paginate(combinedQuery, options);
     return res.json({ status: true, data });

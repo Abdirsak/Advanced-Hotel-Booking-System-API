@@ -28,6 +28,10 @@ export const getUsers = async (req, res) => {
     // Merge the search criteria with the provided query
     const combinedQuery = { ...query, ...searchCriteria };
 
+    if (req?.user?.branch) {
+      combinedQuery.branch = req?.user?.branch;
+    }
+
     // Set up the options for pagination, including the populate option if provided
     let paginationOptions = { ...options };
 

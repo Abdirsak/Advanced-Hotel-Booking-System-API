@@ -7,9 +7,9 @@ const Schema = mongoose.Schema;
 const InventoryAdjustmentSchema = new Schema(
   {
     productId: {
-        type: Schema.Types.ObjectId,
-        ref: "Product",
-      },
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+    },
 
     quantity: {
       type: Number,
@@ -23,10 +23,16 @@ const InventoryAdjustmentSchema = new Schema(
       type: String,
       required: true,
     },
-   
+
     adjustedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+    },
+
+    branch: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+      default: null,
     },
   },
   {
@@ -38,6 +44,9 @@ const InventoryAdjustmentSchema = new Schema(
 InventoryAdjustmentSchema.plugin(MongoosePaginate);
 
 // Export the Inventory Adjustment model
-const InventoryAdjustment = mongoose.model("InventoryAdjustment", InventoryAdjustmentSchema);
+const InventoryAdjustment = mongoose.model(
+  "InventoryAdjustment",
+  InventoryAdjustmentSchema
+);
 
 export default InventoryAdjustment;

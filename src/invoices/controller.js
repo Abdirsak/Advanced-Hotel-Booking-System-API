@@ -2,7 +2,7 @@ import { validationResult } from "express-validator";
 import Invoice from "./model.js";
 import { isValidObjectId } from "mongoose";
 import { getAll } from "../utils/query.js";
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 // Fetching All Invoices
 export const getInvoices = async (req, res) => {
   try {
@@ -23,34 +23,37 @@ export const getInvoices = async (req, res) => {
 
     // Merge the search criteria with the provided query
     const combinedQuery = { ...query, ...searchCriteria };
+    if (req?.user?.branch) {
+      combinedQuery.branch = req?.user?.branch;
+    }
 
     // Set up the options for pagination, including the populate option if provided
     const page = options.page ? parseInt(options.page, 10) : 1;
     const limit = options.limit ? parseInt(options.limit, 10) : 10;
 
-    const data = await  Invoice.aggregate([
+    const data = await Invoice.aggregate([
       { $match: combinedQuery }, // Apply the combined query as a match stage
       {
         $lookup: {
           from: "sales",
           localField: "sales",
           foreignField: "_id",
-          as: "salesData"
-        }
+          as: "salesData",
+        },
       },
       {
         $lookup: {
           from: "customers",
           localField: "salesData.customer",
           foreignField: "_id",
-          as: "customerData"
-        }
+          as: "customerData",
+        },
       },
-      {$unwind: "$salesData"},
-      {$unwind: "$customerData"},
-   
+      { $unwind: "$salesData" },
+      { $unwind: "$customerData" },
+
       { $skip: (page - 1) * limit },
-      { $limit: limit }
+      { $limit: limit },
     ]);
 
     const totalDocs = await Invoice.countDocuments(combinedQuery);
@@ -62,7 +65,7 @@ export const getInvoices = async (req, res) => {
         totalPages: Math.ceil(totalDocs / limit),
         currentPage: page,
       },
-      status: true
+      status: true,
     });
   } catch (error) {
     return res.status(500).json({ status: false, message: error.message });
@@ -112,13 +115,15 @@ export const getInvoiceByCustomerId = async (req, res) => {
     //   },
     //   {$unwind: "$salesData"},
     //   {$unwind: "$customerData"},
-   
+
     //   { $skip: (page - 1) * limit },
     //   { $limit: limit }
     // ]);
 
     // console.log(req.params.customerId)
-    const data = await Invoice.find({customer:new mongoose.Types.ObjectId(req.params.customerId)})
+    const data = await Invoice.find({
+      customer: new mongoose.Types.ObjectId(req.params.customerId),
+    });
     const totalDocs = await Invoice.countDocuments(combinedQuery);
 
     return res.status(200).json({
@@ -128,7 +133,7 @@ export const getInvoiceByCustomerId = async (req, res) => {
         totalPages: Math.ceil(totalDocs / limit),
         currentPage: page,
       },
-      status: true
+      status: true,
     });
   } catch (error) {
     return res.status(500).json({ status: false, message: error.message });
@@ -189,7 +194,10 @@ export const deleteInvoice = async (req, res) => {
         .status(400)
         .json({ status: false, message: "invalid invoice id" });
 
-    const deleteInv = await Invoice.findOneAndDelete({ _id: id }, { new: true });
+    const deleteInv = await Invoice.findOneAndDelete(
+      { _id: id },
+      { new: true }
+    );
     if (!deleteInv)
       return res
         .status(400)
@@ -205,9 +213,8 @@ export const deleteInvoice = async (req, res) => {
   }
 };
 
-
-export  const getLastInvoiceNo = async (req,res)=>{
-  const info = await Invoice.findOne({}).sort({invoiceNo:-1});
+export const getLastInvoiceNo = async (req, res) => {
+  const info = await Invoice.findOne({}).sort({ invoiceNo: -1 });
   const lastInvoice = info?.invoiceNo;
-  return res.status(200).json(lastInvoice)
-}
+  return res.status(200).json(lastInvoice);
+};
