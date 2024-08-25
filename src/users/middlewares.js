@@ -8,8 +8,9 @@ export const AuthMiddleware = async (req, res, next) => {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Please Authenticate" });
   }
-
+  
   const token = authHeader.split(" ")[1];
+  console.log("token-------",token)
   if (!token) {
     return res.status(401).json({ error: "Please Authenticate" });
   }

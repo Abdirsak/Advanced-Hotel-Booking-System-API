@@ -43,7 +43,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
-app.use(morgan("common"));
+// app.use(morgan("common"));
+app.use(morgan("tiny"))
 app.use(cookieParser());
 app.use(
   cors({

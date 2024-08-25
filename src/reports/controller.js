@@ -13,6 +13,7 @@ import Purchase from "../purchases/model.js";
 
 // total amount receivable
 export const TotalReceivables = async (req, res) => {
+  console.log("User: ",req.user)
   try {
     const result = await Sales.aggregate([
       {
@@ -262,6 +263,7 @@ export const getPurchaseReport = async (req, res) => {
 
 export const getLastFiveInvoices = async (req, res) => {
   try {
+    
     const data = await Invoice.aggregate([
       // Apply the combined query as a match stage
       {
