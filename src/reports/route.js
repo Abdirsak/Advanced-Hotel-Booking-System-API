@@ -11,7 +11,11 @@ import {
   TotalCustomers,
   getLastFiveInvoices,
   getEmployeeSalesReport,
+<<<<<<< HEAD
   TotalLoan,
+=======
+  getPurchaseReport,
+>>>>>>> e4705d42c6f8eb8bebc67120b5bd722ee817c082
 } from "./controller.js";
 
 const router = express.Router();
@@ -29,5 +33,8 @@ router.get("/invoices", getLastFiveInvoices);
 router.get("/employee-sales", getEmployeeSalesReport);
 router.get("/loanreport", TotalLoan);
  // Add the new route here
+
+router.get("/purchase-report", getPurchaseReport);
+
 
 export default router;
