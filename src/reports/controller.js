@@ -7,6 +7,7 @@ import Supplier from "../supplier/model.js";
 import Products from "../products/model.js";
 import Employees from "../employees/model.js";
 import User from "../users/model.js";
+import Loan from './../loan/model.js';
 
 // total amount receivable
 export const TotalReceivables = async (req, res) => {
@@ -75,6 +76,12 @@ export const TotalEmployees = async (req, res) => {
 // total users
 export const TotalUsers = async (req, res) => {
   const total = await User.find({}).count();
+  return res.status(200).json({ total });
+};
+
+// total loan
+export const TotalLoan = async (req, res) => {
+  const total = await Loan.find({}).count();
   return res.status(200).json({ total });
 };
 // total profit
