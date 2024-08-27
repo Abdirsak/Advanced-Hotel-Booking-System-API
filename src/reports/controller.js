@@ -7,13 +7,13 @@ import Supplier from "../supplier/model.js";
 import Products from "../products/model.js";
 import Employees from "../employees/model.js";
 import User from "../users/model.js";
-import Loan from './../loan/model.js';
 import Purchase from "../purchases/model.js";
+import Loan from "../loan/model.js";
 
 
 // total amount receivable
 export const TotalReceivables = async (req, res) => {
-  console.log("User: ",req.user)
+  console.log("User: ", req.user)
   try {
     const result = await Sales.aggregate([
       {
@@ -82,11 +82,13 @@ export const TotalUsers = async (req, res) => {
   return res.status(200).json({ total });
 };
 
-// total loan
+// // total loan
 export const TotalLoan = async (req, res) => {
-  const total = await Loan.find({}).count();
-  return res.status(200).json({ total });
+  const data = await Loan.find({});
+  return res.status(200).json({ data });
 };
+
+
 // total profit
 export const TotalProfit = async (req, res) => {
   try {
@@ -263,7 +265,7 @@ export const getPurchaseReport = async (req, res) => {
 
 export const getLastFiveInvoices = async (req, res) => {
   try {
-    
+
     const data = await Invoice.aggregate([
       // Apply the combined query as a match stage
       {

@@ -15,6 +15,7 @@ import {
   TotalLoan,
 
 } from "./controller.js";
+import { AuthMiddleware } from "../users/middlewares.js";
 
 const router = express.Router();
 
