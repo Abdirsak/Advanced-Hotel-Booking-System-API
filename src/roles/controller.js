@@ -4,10 +4,21 @@ import { isValidObjectId } from "mongoose";
 import { getAll, getSingle } from "../utils/query.js";
 
 // Get all roles
-export const getRoles = getAll(Role);
+export const getRoles = async (req, res) => {
+  try {
+    const roles = await Role.find();
+    res.status(200).json({
+      status: true,
+      message: "Roles retrieved successfully",
+      data: roles,
+    });
+  } catch (err) {
+    res.status(500).json({ status: false, message: err.message });
+  }
+};
 
-//Get Single Role 
-export const getRole = getSingle(Role)
+//Get Single Role
+export const getRole = getSingle(Role);
 
 // Create a new role
 export const createRole = async (req, res) => {
