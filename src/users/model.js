@@ -23,11 +23,6 @@ const UserSchema = new Schema(
       required: true,
       enum: ["Admin", "User"],
     },
-    departmentId: {
-      type: Schema.Types.ObjectId,
-      ref: "departments",
-      required: true,
-    },
     status: {
       type: String,
       required: true,

@@ -28,9 +28,6 @@ export const getUsers = async (req, res) => {
     // Merge the search criteria with the provided query
     const combinedQuery = { ...query, ...searchCriteria };
 
-    if (req?.user?.branch) {
-      combinedQuery.branch = req?.user?.branch;
-    }
 
     // Set up the options for pagination, including the populate option if provided
     let paginationOptions = { ...options };
@@ -99,12 +96,12 @@ export const Login = async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
 
+    if(!user) {
+      return res.status(400).json({ message: "User does not exist" });
+    }
+
     const emp = await Employee.findOne({user:new mongoose.Types.ObjectId(user._id)})
 
-    
-    let branch = emp.branch
-    // console.log(branch)
-    console.log("username is :", username);
 
     if (!user || !(await user.isCorrectPassword(password))) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -121,8 +118,6 @@ export const Login = async (req, res) => {
       status: user.status,
       role: user.role,
       lastLogin: user.lastLogin,
-      departmentId:user.departmentId,
-      branch
     }
     
     res.json({

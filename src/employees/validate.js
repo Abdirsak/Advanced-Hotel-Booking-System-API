@@ -44,9 +44,6 @@ export const validateEmployee = [
   // Position validation
   body("position").notEmpty().withMessage("Position is required"),
 
-  // Department validation
-  body("department").notEmpty().withMessage("Department is required"),
-
   // Hiring Date validation
   body("hiringDate")
     .notEmpty()
@@ -63,7 +60,4 @@ export const validateEmployee = [
   body("emergencyContact")
     .notEmpty()
     .withMessage("Emergency Contact is required"),
-
-  // Description validation (optional)
-  body("description").optional(),
 ];
