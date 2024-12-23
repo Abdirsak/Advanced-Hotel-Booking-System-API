@@ -18,31 +18,20 @@ const UserSchema = new Schema(
       type: String,
       required: true,
     },
-    role: {
+    contact: {
       type: String,
       required: true,
-      enum: ["Admin", "User"],
     },
-    status: {
-      type: String,
-      required: true,
-      enum: ["Active", "Inactive"],
-    },
-    lastLogin: {
-      type: Date,
-      default: new Date(),
-    },
-    registeredDate: {
-      type: Date,
-      default: new Date(),
+    
+    role:{
+      type: Schema.Types.ObjectId,
+      ref: "Role",
+      default: null,
     },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
       default: null,
-    },
-    description: {
-      type: String,
     },
   },
   {

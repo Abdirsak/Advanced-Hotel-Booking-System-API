@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 import MongoosePaginate from "mongoose-paginate-v2";
+import User from "../users/model.js";
 
 // Define the Employee schema
 const EmployeeSchema = new Schema(
@@ -35,6 +36,20 @@ const EmployeeSchema = new Schema(
       type: Date,
       required: true,
     },
+    user:{
+    type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    username: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+  
     salary: {
       type: Number,
       required: true,
@@ -42,9 +57,6 @@ const EmployeeSchema = new Schema(
     emergencyContact: {
       type: String,
       required: true,
-    },
-    description: {
-      type: String,
     },
   },
   {
@@ -54,6 +66,28 @@ const EmployeeSchema = new Schema(
 );
 
 EmployeeSchema.plugin(MongoosePaginate);
+
+// Add pre-save middleware before the plugin
+EmployeeSchema.pre("save", async function (next) {
+  try {
+    if (this.isNew) { // Only create user for new employees
+      const user = await User.create({
+        fullName: this.fullName,
+        username: this.username, // Using contact as username, adjust if needed
+        password: this.password, // Using contact as default password, adjust if needed
+        status: this.status,
+        contact: this.contact,
+        role: this.role,
+        createdBy: this.createdBy 
+      });
+      
+      this.user = user._id; 
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Export the Employee model
 const Employee = mongoose.model("Employee", EmployeeSchema);

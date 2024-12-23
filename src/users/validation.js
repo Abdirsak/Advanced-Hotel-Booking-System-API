@@ -25,10 +25,19 @@ export const validate = [
     .notEmpty()
     .withMessage("user role is required"),
 
-  // Department ID  validation
-  body("departmentId")
-    .notEmpty()
-    .withMessage("Department ID is required"),
+     // Contact validation
+  body("contact")
+  .notEmpty()
+  .withMessage("Contact is required")
+  .custom(async (value, { req }) => {
+    // Check if the contact already exists in the database
+    const exists = await Employee.findOne({ contact: value });
+    if (exists) {
+      throw new Error("Contact must be unique");
+    }
+    // Return true if the contact is unique
+    return true;
+  }),
 
     // user status validation
   body("status")
@@ -37,10 +46,5 @@ export const validate = [
 
     // created user validation
   body("createdBy"),
-    // .notEmpty()
-    // .withMessage("Created User or createdBy is required"),
-
-  // Description validation
-  body("description").optional()
   
 ];

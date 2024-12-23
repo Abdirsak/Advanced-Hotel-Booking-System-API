@@ -2,6 +2,7 @@ import { validationResult } from "express-validator";
 import Employee from "./model.js";
 import { isValidObjectId } from "mongoose";
 import { getAll } from "../utils/query.js";
+import User from "../users/model.js";
 
 export const getEmployees = getAll(Employee);
 
@@ -24,6 +25,19 @@ export const createEmployee = async (req, res) => {
   try {
     const { errors } = validationResult(req);
     if (errors.length) throw new Error(errors[0]?.msg);
+
+    const check = await Employee.findOne({ contact: req.params.contact})
+
+    const checkuser = await User.findOne({ username: req.body.username })
+
+    if(check){
+      return res.status(400).json({ status: false, message: "Contact already exists" });
+    }
+
+    if(checkuser){
+      return res.status(400).json({ status: false, message: "Username already exists" });
+    }
+    
 
     const employee = await Employee.create(req.body);
 
