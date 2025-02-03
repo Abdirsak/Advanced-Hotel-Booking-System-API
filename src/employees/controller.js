@@ -89,6 +89,12 @@ export const deleteEmployee = async (req, res) => {
         .status(400)
         .json({ status: false, message: "Invalid employee id" });
 
+    const deletedUser = await Employee.findOne({ _id: id });
+
+    if (deletedUser) {
+      await User.findOneAndDelete({ username: deletedUser?.username });
+    }
+
     const deletedEmployee = await Employee.findOneAndDelete(
       { _id: id },
       { new: true }

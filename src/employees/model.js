@@ -54,6 +54,11 @@ const EmployeeSchema = new Schema(
       type: Number,
       required: true,
     },
+    role: {
+      type: Schema.Types.ObjectId,
+      ref: "Role",
+      required: true,
+    },
     emergencyContact: {
       type: String,
       required: true,

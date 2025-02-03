@@ -24,6 +24,9 @@ export const validateEmployee = [
     .isIn(["Male", "Female"])
     .withMessage("Invalid Gender"),
 
+  // Role validation
+  body("role").notEmpty().withMessage("Role is required"),
+
   // Contact validation
   body("contact")
     .notEmpty()
