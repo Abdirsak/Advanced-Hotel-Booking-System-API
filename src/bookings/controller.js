@@ -1,8 +1,9 @@
 import Booking from "./model.js";
+import Invoice from "../invoices/model.js";
 import { validationResult } from "express-validator";
 import Room from "../Room/model.js";
 
-// Create a new booking
+// Create a new booking with associated invoice
 export const createBooking = async (req, res) => {
   try {
     // Check for validation errors
@@ -12,7 +13,7 @@ export const createBooking = async (req, res) => {
     }
 
     // Check if the room is available
-    const { room, checkInDate, checkOutDate } = req.body;
+    const { room, checkInDate, checkOutDate, customer } = req.body;
     const existingBookings = await Booking.find({
       room: room,
       $or: [
@@ -36,9 +37,25 @@ export const createBooking = async (req, res) => {
 
     await newBooking.save();
 
+    // Calculate total amount (you might want to adjust this calculation)
+    const roomDetails = await Room.findById(newBooking.room);
+    const totalAmount = roomDetails.price * Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24));
+
+    // Create associated invoice
+    const newInvoice = new Invoice({
+      booking: newBooking._id,
+      customer: customer,
+      totalAmount: req.body.totalAmount,
+      status: 'Pending',
+      createdBy: req.user._id
+    });
+
+    await newInvoice.save();
+
     res.status(201).json({
       message: "Booking created successfully",
-      booking: newBooking
+      booking: newBooking,
+      invoice: newInvoice
     });
   } catch (error) {
     res.status(500).json({ 
@@ -124,7 +141,7 @@ export const findOneBooking = async (req, res) => {
   }
 };
 
-// Update a booking
+// Update a booking with associated invoice update
 export const updateBooking = async (req, res) => {
   try {
     // Check for validation errors
@@ -168,14 +185,51 @@ export const updateBooking = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    res.status(200).json({
-      message: "Booking updated successfully",
-      booking: updatedBooking
-    });
+    // Find and update associated invoice
+    const existingInvoice = await Invoice.findOne({ booking: req.params.id });
+    
+    if (existingInvoice) {
+      // Recalculate total amount if dates or room changed
+      const roomDetails = await Room.findById(updatedBooking.room);
+      const totalAmount = roomDetails.price * Math.ceil((new Date(updatedBooking.checkOutDate) - new Date(updatedBooking.checkInDate)) / (1000 * 60 * 60 * 24));
+
+      // Update invoice with new details
+      const updatedInvoice = await Invoice.findByIdAndUpdate(
+        existingInvoice._id,
+        {
+          totalAmount: req.body.totalAmount,
+          customer: updatedBooking.customer,
+          status: req.body.status || existingInvoice.status
+        },
+        { new: true }
+      );
+
+      res.status(200).json({
+        message: "Booking and invoice updated successfully",
+        booking: updatedBooking,
+        invoice: updatedInvoice
+      });
+    } else {
+      // If no invoice exists, create a new one
+      const newInvoice = new Invoice({
+        booking: updatedBooking._id,
+        customer: updatedBooking.customer,
+        totalAmount: roomDetails.price * Math.ceil((new Date(updatedBooking.checkOutDate) - new Date(updatedBooking.checkInDate)) / (1000 * 60 * 60 * 24)),
+        status: 'Pending',
+        createdBy: req.user._id
+      });
+
+      await newInvoice.save();
+
+      res.status(200).json({
+        message: "Booking updated and new invoice created",
+        booking: updatedBooking,
+        invoice: newInvoice
+      });
+    }
   } catch (error) {
     res.status(500).json({ 
       message: "Error updating booking", 
-      error: error.message 
     });
   }
 };
@@ -183,6 +237,15 @@ export const updateBooking = async (req, res) => {
 // Delete a booking
 export const deleteBooking = async (req, res) => {
   try {
+    // Check if there's an existing invoice for this booking
+    const existingInvoice = await Invoice.findOne({ booking: req.params.id });
+
+    if (existingInvoice) {
+      return res.status(400).json({ 
+        message: "This booking cannot be deleted because it has a related invoice" 
+      });
+    }
+
     const booking = await Booking.findByIdAndDelete(req.params.id);
 
     if (!booking) {

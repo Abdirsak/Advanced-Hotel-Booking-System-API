@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 // routes
 import userRouter from "./users/route.js";
 import employeeRouter from "./employees/route.js";
+import invoiceRouter from "./invoices/route.js";
 import roomRouter from "./Room/route.js";
 import bookingRouter from "./bookings/route.js";
 import customerRouter from "./customer/route.js";
@@ -49,6 +50,7 @@ app.get("/", (req, res) => {
 // * REGISTER ROTES
 app.use("/api/users", userRouter);
 app.use("/api/employees", AuthMiddleware, employeeRouter);
+app.use("/api/invoices", AuthMiddleware, invoiceRouter);
 app.use("/api/rooms", AuthMiddleware, roomRouter);
 app.use("/api/bookings", AuthMiddleware, bookingRouter);
 app.use("/api/customers", AuthMiddleware, customerRouter);
