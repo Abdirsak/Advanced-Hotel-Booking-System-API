@@ -1,6 +1,6 @@
 import { body } from "express-validator";
 import mongoose from "mongoose";
-import { Room } from "./model.js";
+import  Room  from "./model.js";
 
 // Validation middleware for Room creation and update
 export const validateRoom = [

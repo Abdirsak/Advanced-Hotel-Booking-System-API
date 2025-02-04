@@ -1,5 +1,5 @@
 import { validationResult } from "express-validator";
-import { Room } from "./model.js";
+import Room  from "./model.js";
 import { isValidObjectId } from "mongoose";
 import { getAll } from "../utils/query.js";
 

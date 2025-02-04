@@ -54,4 +54,4 @@ RoomSchema.plugin(MongoosePaginate);
 
 const Room = mongoose.model('Room', RoomSchema);
 
-export { Room };
+export default Room;
